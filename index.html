@@ -1,0 +1,2277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>C7Lab – UNALM | Facultad de Agronomía</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zxing-js/0.20.0/index.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" defer></script>
+<style>
+:root{
+  --green:#3D6B4F;--green-dk:#2A4D38;--green-lt:#EBF2EC;--green-md:#4E8064;
+  --gold:#C9A84C;--gold-lt:#FBF5E6;--cream:#F5EED8;
+  --red:#C0392B;--red-lt:#FDEAEA;--amber:#D4860A;--amber-lt:#FEF5E7;
+  --blue:#2C72B0;--blue-lt:#EBF3FC;
+  --ink:#1A1A1A;--white:#FEFEFE;--fog:#F2F5F1;--border:#C8D8CC;--gray:#667A6E;
+  --shadow:0 2px 12px rgba(42,77,56,.10);--shadow-lg:0 8px 32px rgba(42,77,56,.18);
+  --r:12px;--r-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{font-family:'DM Sans',sans-serif;background:var(--fog);color:var(--ink);}
+/* ── NAV ── */
+.nav{background:var(--green-dk);padding:0 16px;display:flex;align-items:center;gap:12px;height:52px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.nav-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;letter-spacing:.5px;display:flex;align-items:center;gap:8px;}
+.nav-brand span{color:var(--gold);}
+.nav-links{display:flex;gap:2px;margin-left:auto;}
+.np{background:none;border:none;color:rgba(255,255,255,.7);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:6px 12px;border-radius:6px;cursor:pointer;transition:.15s;white-space:nowrap;}
+.np:hover{background:rgba(255,255,255,.12);color:#fff;}
+.np.on{background:var(--gold);color:var(--green-dk);font-weight:700;}
+.mob-nav{display:none;background:var(--green-dk);border-top:1px solid rgba(255,255,255,.1);padding:6px 8px;gap:4px;position:fixed;bottom:0;left:0;right:0;z-index:100;}
+.mt{flex:1;background:none;border:none;color:rgba(255,255,255,.65);font-size:10px;padding:6px 2px;border-radius:6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:.15s;}
+.mt:hover,.mt.on{background:rgba(255,255,255,.12);color:#fff;}
+.mt.on{color:var(--gold);}
+@media(max-width:700px){.nav-links{display:none;}.mob-nav{display:flex;}.page{padding-bottom:72px!important;}}
+/* ── PAGES ── */
+.page{display:none;padding:20px 16px;max-width:900px;margin:0 auto;}
+.page.on{display:block;}
+/* ── CARDS ── */
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:16px;border:1px solid var(--border);}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:16px;}
+.sc{background:#fff;border-radius:var(--r-sm);padding:12px;text-align:center;border:1px solid var(--border);}
+.sc.g{border-top:3px solid #22C55E;}.sc.r{border-top:3px solid var(--red);}
+.sc.a{border-top:3px solid var(--amber);}.sc.b{border-top:3px solid var(--blue);}
+.sc.p{border-top:3px solid var(--green);}.sc.gold{border-top:3px solid var(--gold);}
+.sn{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;}
+.sl{font-size:11px;color:var(--gray);margin-top:2px;}
+/* ── LAB CARDS ── */
+.labs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.lab-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:16px;cursor:pointer;transition:.2s;position:relative;}
+.lab-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+.lab-card-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.lab-icon{font-size:26px;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.lab-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;line-height:1.3;}
+.lab-code{font-size:11px;color:var(--gray);}
+.prog-row{margin:6px 0 4px;}
+.prog-label{font-size:11px;color:var(--gray);display:flex;justify-content:space-between;margin-bottom:3px;}
+.prog-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:.3s;}
+.lab-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;}
+.bg-ok{background:#DCFCE7;color:#15803D;}
+.bg-warn{background:#FEF3C7;color:#92400E;}
+.bg-red{background:var(--red-lt);color:var(--red);}
+.bg-blue{background:var(--blue-lt);color:var(--blue);}
+.bg-gray{background:var(--fog);color:var(--gray);}
+.bg-amb{background:var(--amber-lt);color:var(--amber);}
+/* ── LAB PAGE ── */
+.lab-page-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.back-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;color:var(--gray);display:flex;align-items:center;gap:4px;}
+.back-btn:hover{background:var(--fog);}
+.lab-page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;}
+.lab-page-sub{font-size:13px;color:var(--gray);margin-top:2px;}
+.lab-actions{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;}
+.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r-sm);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:var(--green-dk);color:#fff;font-weight:600;padding:10px 12px;text-align:left;white-space:nowrap;}
+td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--fog);}
+.verif-badge{font-size:11px;padding:3px 8px;border-radius:10px;font-weight:600;cursor:pointer;border:none;white-space:nowrap;}
+.v-ok{background:#DCFCE7;color:#15803D;}
+.v-stale{background:#FEF9C3;color:#854D0E;border:1px solid #FDE047;}
+.v-tkt{background:var(--red-lt);color:var(--red);}
+.v-pend{background:var(--fog);color:var(--gray);}
+/* ── UPLOAD ZONE ── */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--r-sm);padding:24px;text-align:center;cursor:pointer;transition:.2s;position:relative;}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--green);background:var(--green-lt);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+/* ── SCAN PANEL ── */
+.scan-panel{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:16px;margin-bottom:16px;}
+.cam-panel{border-radius:var(--r-sm);overflow:hidden;background:#000;margin-bottom:12px;display:none;position:relative;}
+.cam-panel.open{display:block;}
+.cam-panel video{width:100%;max-height:300px;display:block;object-fit:cover;}
+.scan-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.scan-frame{width:260px;height:80px;position:relative;}
+.scan-frame::before,.scan-frame::after{content:'';position:absolute;width:20px;height:20px;border-color:#fff;border-style:solid;}
+.scan-frame::before{top:0;left:0;border-width:3px 0 0 3px;}
+.scan-frame::after{top:0;right:0;border-width:3px 3px 0 0;}
+.scan-frame .corner-bl,.scan-frame .corner-br{position:absolute;width:20px;height:20px;border-color:#fff;border-style:solid;bottom:0;}
+.scan-frame .corner-bl{left:0;border-width:0 0 3px 3px;}
+.scan-frame .corner-br{right:0;border-width:0 3px 3px 0;}
+.scan-line{position:absolute;left:4px;right:4px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:scan-sweep 1.8s ease-in-out infinite;}
+@keyframes scan-sweep{0%{top:10px;opacity:1;}50%{opacity:.8;}100%{top:calc(100% - 10px);opacity:1;}}
+.cam-status{font-size:12px;color:rgba(255,255,255,.9);text-align:center;padding:7px;position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.6));}
+.scan-input-row{display:flex;gap:8px;margin-bottom:8px;}
+.scan-result{border-radius:var(--r-sm);padding:14px;margin-top:10px;display:none;}
+.scan-result.show{display:block;}
+.rh{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.ri{font-size:24px;}
+.rt{font-weight:700;font-size:15px;}
+.rt.ok{color:#15803D;}.rt.warn{color:var(--amber);}.rt.miss{color:var(--red);}
+.rsub{font-size:12px;color:var(--gray);}
+.rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
+.rf label{font-size:11px;color:var(--gray);display:block;}
+.rf span{font-size:13px;font-weight:500;}
+.ok-result{background:#F0FDF4;border:1px solid #86EFAC;}
+.warn-result{background:#FFFBEB;border:1px solid #FCD34D;}
+.miss-result{background:var(--red-lt);border:1px solid #FCA5A5;}
+/* ── C7 EXPORT ── */
+.c7-progress{background:var(--green-lt);border-radius:var(--r-sm);padding:14px;margin-bottom:14px;border:1px solid var(--border);}
+.c7-progress-bar{height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin:8px 0;}
+.c7-progress-fill{height:100%;background:var(--green);border-radius:5px;transition:.5s;}
+.c7-table td,.c7-table th{font-size:11px;padding:5px 8px;}
+/* ── MODALS ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal{background:#fff;border-radius:var(--r);padding:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+.modal h3{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;margin-bottom:6px;}
+.modal p{font-size:13px;color:var(--gray);margin-bottom:14px;}
+/* ── FORMS ── */
+.fg{margin-bottom:12px;}
+.fl{font-size:12px;font-weight:600;color:var(--ink);display:block;margin-bottom:4px;}
+.finput,.fselect,.ftextarea{width:100%;border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--ink);}
+.finput:focus,.fselect:focus,.ftextarea:focus{outline:none;border-color:var(--green);}
+.ftextarea{resize:vertical;min-height:70px;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+/* ── BUTTONS ── */
+.btn{padding:9px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;transition:.15s;display:inline-flex;align-items:center;gap:6px;}
+.btn-ok{background:#22C55E;color:#fff;}.btn-ok:hover{background:#16A34A;}
+.btn-blue{background:var(--blue);color:#fff;}.btn-blue:hover{opacity:.9;}
+.btn-gold{background:var(--gold);color:var(--green-dk);font-weight:700;}.btn-gold:hover{opacity:.9;}
+.btn-ghost{background:var(--fog);color:var(--ink);border:1px solid var(--border);}.btn-ghost:hover{background:var(--border);}
+.btn-danger{background:var(--red);color:#fff;}.btn-danger:hover{background:#A93226;}
+.btn-amber{background:var(--amber);color:#fff;}.btn-amber:hover{opacity:.9;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+/* ── TICKET ITEMS ── */
+.tkt-item{border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:10px;overflow:hidden;}
+.tkt-head{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#fff;cursor:pointer;}
+.tkt-head:hover{background:var(--fog);}
+.tkt-body{display:none;padding:12px 14px;background:var(--fog);border-top:1px solid var(--border);}
+.tkt-body.open{display:block;}
+.tkt-timeline{margin-top:10px;}
+.tl-item{display:flex;gap:10px;margin-bottom:8px;font-size:12px;}
+.tl-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.dot-open{background:var(--red);}.dot-pending{background:var(--amber);}.dot-resolved{background:#22C55E;}
+/* ── TOAST ── */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--green-dk);color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;display:none;align-items:center;gap:8px;box-shadow:var(--shadow-lg);}
+#toast.show{display:flex;}
+/* ── LOADING ── */
+#loadingOverlay{position:fixed;inset:0;background:rgba(255,255,255,.8);z-index:9998;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+.spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+/* ── API BANNER ── */
+#apiBanner{position:fixed;top:52px;left:0;right:0;background:var(--amber);color:#fff;padding:10px 16px;display:none;align-items:center;gap:10px;z-index:90;flex-wrap:wrap;}
+#apiBanner input{flex:1;min-width:200px;border:none;border-radius:6px;padding:6px 10px;font-size:13px;}
+/* ── DIFF TABLE ── */
+.diff-t{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;}
+.diff-t th{background:var(--fog);padding:5px 8px;}
+.diff-t td{padding:5px 8px;border-bottom:1px solid var(--border);}
+.d-old{color:var(--red);text-decoration:line-through;}
+.d-new{color:#15803D;}
+/* ── KANBAN ── */
+#kanbanBoard{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start;}
+.kanban-col{background:var(--fog);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column;}
+.kanban-col-head{padding:12px 16px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between;letter-spacing:.3px;flex-shrink:0;}
+.kanban-open{background:#FEE2E2;color:#991B1B;border-bottom:3px solid #F87171;}
+.kanban-pending{background:#FEF3C7;color:#92400E;border-bottom:3px solid #FCD34D;}
+.kanban-resolved{background:#DCFCE7;color:#14532D;border-bottom:3px solid #4ADE80;}
+.kanban-count{background:rgba(0,0,0,.15);border-radius:20px;padding:2px 9px;font-size:12px;font-weight:800;min-width:24px;text-align:center;}
+.kanban-cards{padding:10px;display:flex;flex-direction:column;gap:8px;min-height:80px;max-height:calc(100vh - 280px);overflow-y:auto;}
+.kanban-cards::-webkit-scrollbar{width:4px;}
+.kanban-cards::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.k-card{background:#fff;border-radius:var(--r-sm);border:1px solid var(--border);padding:12px;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.07);border-left:3px solid transparent;}
+.k-card:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+.kcards-open .k-card,.kanban-col:nth-child(1) .k-card{border-left-color:#F87171;}
+.kcards-pending .k-card,.kanban-col:nth-child(2) .k-card{border-left-color:#FCD34D;}
+.kcards-resolved .k-card,.kanban-col:nth-child(3) .k-card{border-left-color:#4ADE80;}
+.k-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.k-card-id{font-family:monospace;font-size:11px;font-weight:700;color:var(--gray);}
+.k-card-code{font-size:14px;font-weight:700;margin-bottom:2px;line-height:1.2;}
+.k-card-lab{font-size:11px;color:var(--gray);margin-bottom:6px;display:flex;align-items:center;gap:4px;}
+.k-card-type{font-size:10px;padding:2px 7px;border-radius:8px;display:inline-block;margin-bottom:7px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
+.k-type-datos{background:#EDE9FE;color:#5B21B6;}
+.k-type-noreg{background:#DBEAFE;color:#1E40AF;}
+.k-type-noenc{background:#FEF3C7;color:#92400E;}
+.k-type-cod{background:#FFE4E6;color:#9F1239;}
+.k-type-est{background:#ECFDF5;color:#065F46;}
+.k-type-otro{background:var(--fog);color:var(--gray);}
+.k-card-desc{font-size:12px;color:var(--ink);line-height:1.45;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.k-card-date{font-size:10px;color:var(--gray);margin-bottom:8px;}
+.k-card-actions{display:flex;gap:6px;padding-top:8px;border-top:1px solid var(--border);}
+.k-empty{text-align:center;padding:32px 12px;color:var(--gray);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.k-empty-icon{font-size:28px;opacity:.4;}
+@media(max-width:900px){#kanbanBoard{grid-template-columns:repeat(3,minmax(220px,1fr));overflow-x:auto;padding-bottom:6px;}}
+@media(max-width:600px){#kanbanBoard{grid-template-columns:repeat(3,80vw);overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;}
+.kanban-col{scroll-snap-align:start;}.kanban-cards{max-height:60vh;}}
+/* ── MISC ── */
+.page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--gray);margin-bottom:18px;}
+.empty{text-align:center;padding:40px 20px;color:var(--gray);}
+.empty .ei{font-size:40px;margin-bottom:10px;}
+.tag{display:inline-flex;align-items:center;gap:4px;background:var(--green-lt);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:500;}
+.tag button{background:none;border:none;cursor:pointer;color:var(--red);font-size:14px;padding:0;line-height:1;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:500px){.two-col{grid-template-columns:1fr;}.rgrid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav class="nav">
+  <div class="nav-brand">✸ <span>C7</span>Lab <span style="color:rgba(255,255,255,.5);font-size:11px;font-weight:400;margin-left:4px;">UNALM</span></div>
+  <div class="nav-links">
+    <button class="np on"  onclick="goPage('labs')">🏫 Laboratorios</button>
+    <button class="np"     onclick="goPage('tickets')">🎫 Tickets <span style="background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;display:none;" id="nb">0</span></button>
+    <button class="np"     onclick="goPage('inventory')">📋 Inventario</button>
+    <button class="np"     onclick="goPage('dashboard')">📊 Dashboard</button>
+    <button class="np"     onclick="goPage('reports')">📁 Reportes</button>
+  </div>
+</nav>
+<nav class="mob-nav">
+  <button class="mt on"  onclick="goPage('labs')"><span>🏫</span>Labs</button>
+  <button class="mt"     onclick="goPage('tickets')"><span>🎫</span>Tickets</button>
+  <button class="mt"     onclick="goPage('inventory')"><span>📋</span>Lista</button>
+  <button class="mt"     onclick="goPage('dashboard')"><span>📊</span>Dashboard</button>
+  <button class="mt"     onclick="goPage('reports')"><span>📁</span>Reportes</button>
+</nav>
+
+<!-- ══ API BANNER ══ -->
+<div id="apiBanner">
+  <span>⚠️ Conecta Google Sheets para guardar datos:</span>
+  <input id="apiUrlInput" placeholder="https://script.google.com/macros/s/.../exec" onkeydown="if(event.key==='Enter')saveApiUrl()">
+  <button onclick="saveApiUrl()" style="background:var(--green-dk);color:#fff;border:none;border-radius:6px;padding:7px 14px;cursor:pointer;font-weight:700;font-size:12px;">Conectar</button>
+</div>
+
+<!-- ══ LOADING ══ -->
+<div id="loadingOverlay"><div class="spinner"></div><div style="font-size:13px;color:var(--gray);">Cargando datos…</div></div>
+
+<!-- ══════════════════════════════
+     PAGE: LABORATORIOS
+══════════════════════════════ -->
+<div class="page on" id="page-labs">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+    <div>
+      <div class="page-title">🏫 Laboratorios</div>
+      <div class="page-sub">Facultad de Agronomía — UNALM</div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <button class="btn btn-ghost" id="periodBtn" onclick="openPeriodModal()" style="font-size:12px;padding:6px 12px;">📅 <span id="periodBtnLabel">Período</span></button>
+      <button class="btn btn-gold" onclick="openAddLabModal()">+ Nuevo laboratorio</button>
+    </div>
+  </div>
+  <div class="stats" id="labsStats"></div>
+  <div class="labs-grid" id="labsGrid"></div>
+</div>
+
+<!-- ══════════════════════════════
+     PAGE: LAB DETAIL
+══════════════════════════════ -->
+<div class="page" id="page-labdetail">
+  <div class="lab-page-header">
+    <button class="back-btn" onclick="goPage('labs')">← Volver</button>
+    <div>
+      <div class="lab-page-title" id="ldTitle">—</div>
+      <div class="lab-page-sub" id="ldSub">—</div>
+    </div>
+    <div class="lab-actions">
+      <button class="btn btn-amber" onclick="openEditLab()">✏️ Editar</button>
+      <button class="btn btn-blue" id="ldScanBtn" onclick="openScanView()" disabled>📷 Verificar</button>
+      <button class="btn btn-ghost" id="ldSyncBtn" style="font-size:12px;" title="Sincronizar con Sheets" onclick="syncLabFromSheets()">🔄</button>
+      <span id="ldSyncTime" style="font-size:10px;color:var(--gray);white-space:nowrap;"></span>
+      <button class="btn btn-danger" style="font-size:12px;" onclick="confirmDeleteLab()">🗑</button>
+    </div>
+  </div>
+  <!-- Stats row -->
+  <div class="stats" id="ldStats"></div>
+  <!-- Estado equipos row -->
+  <div class="stats" id="ldStatusStats" style="margin-top:-4px;"></div>
+  <!-- Upload zone -->
+  <div class="card" style="margin-bottom:16px;" id="ldUploadCard">
+    <div class="section-title">📊 Lista de Patrimonio</div>
+    <div class="upload-zone" id="labUploadZone">
+      <input type="file" id="labFileInput" accept=".xlsx,.xls,.csv" onchange="handleLabFile(this.files[0])">
+      <div style="font-size:28px;margin-bottom:8px">📊</div>
+      <p id="labUploadLabel" style="font-size:13px;font-weight:500;">Arrastra el Excel C7 de Patrimonio aquí</p>
+      <small style="color:var(--gray);">Formato SUNEDU/C7 — se detecta automáticamente</small>
+    </div>
+    <div id="ldMapperSection" style="display:none;margin-top:12px;"></div>
+  </div>
+  <!-- Equipment table -->
+  <div class="card" id="ldTableCard" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <div class="section-title" style="margin-bottom:0;">📋 Equipos del laboratorio</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input class="finput" id="ldSearch" placeholder="Buscar equipo…" style="width:160px;font-size:12px;padding:6px 10px;" oninput="renderLabTable()">
+        <select class="fselect" id="ldAreaFilter" style="width:auto;font-size:12px;padding:6px 10px;" onchange="renderLabTable()">
+          <option value="all">Todas las áreas</option>
+        </select>
+        <select class="fselect" id="ldVerifFilter" style="width:auto;font-size:12px;padding:6px 10px;" onchange="renderLabTable()">
+          <option value="all">Todos</option>
+          <option value="conforme">Conforme</option>
+          <option value="con_ticket">Con ticket</option>
+          <option value="pendiente">Pendiente</option>
+        </select>
+      </div>
+    </div>
+    <!-- C7 export progress -->
+    <div class="c7-progress" id="c7Progress">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;font-weight:600;">Progreso de verificación C7</span>
+        <span id="c7ProgressPct" style="font-size:13px;font-weight:700;color:var(--green);">0%</span>
+      </div>
+      <div class="c7-progress-bar"><div class="c7-progress-fill" id="c7ProgressFill" style="width:0%"></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <span id="c7ProgressLabel" style="font-size:12px;color:var(--gray);">Sube el Excel de Patrimonio para iniciar</span>
+        <button class="btn btn-gold" id="exportC7Btn" onclick="exportC7Excel()" disabled>📄 Exportar C7</button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>N°</th><th>Código Inv.</th><th>Nombre del equipo</th><th>Estado Patrimonio</th>
+          <th>Área</th><th>Observaciones</th><th>Verificación</th>
+        </tr></thead>
+        <tbody id="ldTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PAGE: SCAN (dentro del lab)
+══════════════════════════════ -->
+<div class="page" id="page-scan">
+  <button class="back-btn" style="margin-bottom:14px;" onclick="goPage('labdetail')">← Volver al laboratorio</button>
+  <div class="page-title" id="scanLabTitle">Verificación</div>
+  <div class="page-sub" id="scanLabSub"></div>
+  <div class="scan-panel">
+    <div class="cam-panel" id="camPanel">
+      <video id="camVideo" autoplay playsinline muted></video>
+      <div class="scan-overlay">
+        <div class="scan-frame">
+          <div class="corner-bl"></div>
+          <div class="corner-br"></div>
+          <div class="scan-line"></div>
+        </div>
+      </div>
+      <div class="cam-status" id="camStatus">Iniciando…</div>
+    </div>
+    <div class="scan-input-row">
+      <input class="finput" id="scanInput" placeholder="Código de inventario…" onkeydown="if(event.key==='Enter')doScan()">
+      <button class="btn btn-blue" id="camBtn" onclick="toggleCam()">📷</button>
+      <button class="btn btn-gold" onclick="doScan()">Buscar</button>
+    </div>
+    <div id="rOk"   class="scan-result ok-result"></div>
+    <div id="rWarn" class="scan-result warn-result"></div>
+    <div id="rMiss" class="scan-result miss-result"></div>
+  </div>
+  <div class="card">
+    <div class="section-title">✅ Verificados en esta sesión (<span id="sessionCount">0</span>)</div>
+    <div id="sessionList" style="font-size:12px;color:var(--gray);">Sin verificaciones aún</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PAGE: TICKETS
+══════════════════════════════ -->
+<div class="page" id="page-tickets" style="max-width:1100px;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+    <div>
+      <div class="page-title">&#x1F3AB; Tickets</div>
+      <div class="page-sub">Seguimiento de incidencias de inventario</div>
+    </div>
+  </div>
+  <div class="stats" id="tktStats"></div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    <input class="finput" id="tktSearch" placeholder="Buscar por c&#xF3;digo o lab&#x2026;" style="flex:1;min-width:140px;" oninput="renderTickets()">
+    <select class="fselect" id="tktLabFilter" style="width:auto;" onchange="renderTickets()"><option value="all">Todos los labs</option></select>
+  </div>
+  <div id="kanbanBoard" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start;">
+    <div class="kanban-col">
+      <div class="kanban-col-head kanban-open">&#x1F534; Abiertos <span class="kanban-count" id="kcount-open">0</span></div>
+      <div class="kanban-cards" id="kcards-open"></div>
+    </div>
+    <div class="kanban-col">
+      <div class="kanban-col-head kanban-pending">&#x1F7E1; En revisi&#xF3;n <span class="kanban-count" id="kcount-pending">0</span></div>
+      <div class="kanban-cards" id="kcards-pending"></div>
+    </div>
+    <div class="kanban-col">
+      <div class="kanban-col-head kanban-resolved">&#x1F7E2; Resueltos <span class="kanban-count" id="kcount-resolved">0</span></div>
+      <div class="kanban-cards" id="kcards-resolved"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PAGE: INVENTORY
+══════════════════════════════ -->
+<div class="page" id="page-inventory">
+  <div class="page-title">📋 Inventario verificado</div>
+  <div class="page-sub">Equipos confirmados durante verificación física</div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+    <input class="finput" id="invSearch" placeholder="Buscar…" style="flex:1;min-width:140px;" oninput="renderInventory()">
+    <select class="fselect" id="invLabFilter" style="width:auto;" onchange="renderInventory()"><option value="all">Todos los labs</option></select>
+    <select class="fselect" id="invStateFilter" style="width:auto;" onchange="renderInventory()">
+      <option value="all">Todos los estados</option>
+      <option value="ÓPTIMO">Óptimo</option>
+      <option value="EN MANTENIMIENTO">En mantenimiento</option>
+      <option value="EN REPARACIÓN">En reparación</option>
+      <option value="DE BAJA">De baja</option>
+    </select>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>N°</th><th>Código</th><th>Descripción</th><th>Estado verificado</th><th>Área</th><th>Lab</th><th>Fecha</th></tr></thead>
+      <tbody id="invBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PAGE: DASHBOARD
+══════════════════════════════ -->
+<div class="page" id="page-dashboard">
+  <div class="page-title">📊 Dashboard</div>
+  <div class="page-sub">Resumen general del proceso de verificación</div>
+  <div class="stats" id="dashKpis"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+    <div class="card"><div class="section-title">Estado tickets</div><div style="height:180px;"><canvas id="chartDonut"></canvas></div></div>
+    <div class="card"><div class="section-title">Tickets por tipo</div><div style="height:180px;"><canvas id="chartBar"></canvas></div></div>
+  </div>
+  <div class="card"><div class="section-title">Avance por laboratorio</div><div id="dashLabTable"></div></div>
+</div>
+
+<!-- ══════════════════════════════
+     PAGE: REPORTES
+══════════════════════════════ -->
+<div class="page" id="page-reports">
+  <div class="page-title">📁 Generar Reportes</div>
+  <div class="page-sub">Exporta información del proceso de verificación en formato Excel</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:8px;">
+    <div class="card">
+      <div style="font-size:32px;margin-bottom:8px;">📊</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Estado de avance</div>
+      <div style="font-size:13px;color:var(--gray);margin-bottom:14px;">Resumen del porcentaje de verificación por laboratorio, equipos verificados, tickets abiertos y estado general.</div>
+      <button class="btn btn-gold" onclick="reportAvance()">⬇ Descargar Excel</button>
+    </div>
+    <div class="card">
+      <div style="font-size:32px;margin-bottom:8px;">🏫</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Información de laboratorios</div>
+      <div style="font-size:13px;color:var(--gray);margin-bottom:14px;">Directorio con Facultad, Departamento Académico, Código, Nombre y Jefe de cada laboratorio.</div>
+      <button class="btn btn-gold" onclick="reportLabs()">⬇ Descargar Excel</button>
+    </div>
+    <div class="card">
+      <div style="font-size:32px;margin-bottom:8px;">🎫</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Reporte de tickets</div>
+      <div style="font-size:13px;color:var(--gray);margin-bottom:14px;">Listado completo de incidencias con estado, fechas, acciones tomadas y responsables.</div>
+      <button class="btn btn-gold" onclick="reportTickets()">⬇ Descargar Excel</button>
+    </div>
+    <div class="card">
+      <div style="font-size:32px;margin-bottom:8px;">📋</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Inventario verificado</div>
+      <div style="font-size:13px;color:var(--gray);margin-bottom:14px;">Todos los equipos verificados con su estado físico confirmado durante la verificación.</div>
+      <button class="btn btn-gold" onclick="reportInventory()">⬇ Descargar Excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: ADD LAB ══ -->
+<div class="modal-bg" id="mAddLab">
+  <div class="modal">
+    <h3>🏫 Nuevo Laboratorio</h3>
+    <p>Completa la información del laboratorio.</p>
+    <div class="two-col">
+      <div class="fg"><label class="fl">Nombre *</label><input class="finput" id="newLabName" placeholder="Lab. de Suelos y Aguas"></div>
+      <div class="fg"><label class="fl">Código *</label><input class="finput" id="newLabCode" placeholder="SL01LA01" style="text-transform:uppercase;"></div>
+    </div>
+    <div class="two-col">
+      <div class="fg"><label class="fl">Facultad</label><input class="finput" id="newLabFacultad" placeholder="Agronomía"></div>
+      <div class="fg"><label class="fl">Dpto. Académico</label><input class="finput" id="newLabDpto" placeholder="Suelos"></div>
+    </div>
+    <div class="two-col">
+      <div class="fg"><label class="fl">Responsable</label><input class="finput" id="newLabResp" placeholder="Nombre del jefe"></div>
+      <div class="fg"><label class="fl">Ícono</label><input class="finput" id="newLabIcon" placeholder="🔬" maxlength="4" style="font-size:20px;"></div>
+    </div>
+    <div class="btn-row" style="margin-top:4px;">
+      <button class="btn btn-gold" onclick="addLab()">✔ Agregar</button>
+      <button class="btn btn-ghost" onclick="closeM('mAddLab')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: EDIT LAB ══ -->
+<div class="modal-bg" id="mEditLab">
+  <div class="modal">
+    <h3>✏️ Editar Laboratorio</h3>
+    <div class="two-col">
+      <div class="fg"><label class="fl">Nombre *</label><input class="finput" id="editLabName"></div>
+      <div class="fg"><label class="fl">Código (no editable)</label><input class="finput" id="editLabCode" disabled style="background:var(--fog);color:var(--gray);"></div>
+    </div>
+    <div class="two-col">
+      <div class="fg"><label class="fl">Facultad</label><input class="finput" id="editLabFacultad"></div>
+      <div class="fg"><label class="fl">Dpto. Académico</label><input class="finput" id="editLabDpto"></div>
+    </div>
+    <div class="two-col">
+      <div class="fg"><label class="fl">Responsable</label><input class="finput" id="editLabResp"></div>
+      <div class="fg"><label class="fl">Ícono</label><input class="finput" id="editLabIcon" maxlength="4" style="font-size:20px;"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Áreas del laboratorio</label>
+      <div id="editAreasList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;min-height:24px;"></div>
+      <div style="display:flex;gap:6px;">
+        <input class="finput" id="editAreaInput" placeholder="Ej: Área de Suelos" style="flex:1;" onkeydown="if(event.key==='Enter'){event.preventDefault();addEditArea();}">
+        <button class="btn btn-blue" style="padding:6px 12px;" onclick="addEditArea()">+</button>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ok" onclick="saveEditLab()">✔ Guardar</button>
+      <button class="btn btn-ghost" onclick="closeM('mEditLab')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: SCAN RESULT — estado físico ══ -->
+<div class="modal-bg" id="mScanConfirm">
+  <div class="modal">
+    <h3 id="mSCTitle">Confirmar verificación</h3>
+    <p id="mSCDesc"></p>
+    <div class="fg">
+      <label class="fl">Estado físico del equipo *</label>
+      <select class="fselect" id="mSCStatus">
+        <option value="ÓPTIMO">Operativo / Óptimo</option>
+        <option value="EN MANTENIMIENTO">En mantenimiento</option>
+        <option value="EN REPARACIÓN">En reparación</option>
+        <option value="DE BAJA">Dado de baja</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl">Observación (opcional)</label>
+      <input class="finput" id="mSCObs" placeholder="Ej: funciona correctamente">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ok" onclick="confirmScan()">✔ Confirmar</button>
+      <button class="btn btn-ghost" onclick="closeM('mScanConfirm')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: TICKET ══ -->
+<div class="modal-bg" id="mTicket">
+  <div class="modal">
+    <h3>🎫 Crear Ticket</h3>
+    <div class="fg"><label class="fl">Tipo</label>
+      <select class="fselect" id="tType">
+        <option value="datos_incorrectos">Datos incorrectos en Patrimonio</option>
+        <option value="no_registrado">Equipo físico no registrado</option>
+        <option value="no_encontrado">Equipo de Patrimonio no encontrado</option>
+        <option value="codigo_errado">Código errado</option>
+        <option value="estado_diferente">Estado físico diferente al registrado</option>
+        <option value="otro">Otro</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">Descripción</label><textarea class="ftextarea" id="tDesc"></textarea></div>
+    <div class="fg"><label class="fl">Acción propuesta</label>
+      <select class="fselect" id="tAction">
+        <option value="actualizar_patrimonio">Actualizar registro en Patrimonio</option>
+        <option value="dar_de_baja">Dar de baja el equipo</option>
+        <option value="buscar_equipo">Buscar equipo en otro ambiente</option>
+        <option value="otro">Otro</option>
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-danger" onclick="createTicket()">🎫 Crear ticket</button>
+      <button class="btn btn-ghost" onclick="closeM('mTicket')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: RESOLVE TICKET ══ -->
+<div class="modal-bg" id="mResolve">
+  <div class="modal">
+    <h3 id="mResTitle">Resolver ticket</h3>
+    <p id="mResDesc"></p>
+    <div class="fg"><label class="fl">Acción tomada</label>
+      <select class="fselect" id="rAction">
+        <option value="actualizar_patrimonio">Registro actualizado en Patrimonio</option>
+        <option value="dado_de_baja">Equipo dado de baja</option>
+        <option value="equipo_ubicado">Equipo ubicado y registrado</option>
+        <option value="otro">Otro</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">Comentario</label><input class="finput" id="rComment" placeholder="Comentario de cierre…"></div>
+    <div class="btn-row">
+      <button class="btn btn-ok" onclick="resolveTicket()">✔ Cerrar ticket</button>
+      <button class="btn btn-amber" onclick="pendTicket()">⏳ En revisión</button>
+      <button class="btn btn-ghost" onclick="closeM('mResolve')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: TICKET DETAIL (desde tabla lab) ══ -->
+<div class="modal-bg" id="mTktDetail">
+  <div class="modal">
+    <h3 id="mTDTitle">Ticket</h3>
+    <div id="mTDBody"></div>
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn btn-blue" id="mTDVerBtn" onclick="goToTicket()">Ver en tickets →</button>
+      <button class="btn btn-ghost" onclick="closeM('mTktDetail')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: PERÍODO ══ -->
+<div class="modal-bg" id="mPeriod">
+  <div class="modal" style="max-width:380px;">
+    <h3>📅 Período de verificación</h3>
+    <p>Define el período activo. Al cambiar, se cargarán desde Sheets solo las verificaciones y tickets de ese período.</p>
+    <div id="mPeriodCurrent" style="background:var(--green-lt);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+      <span>📌 Período activo:</span><strong id="mPeriodCurrentVal">—</strong>
+    </div>
+    <div class="fg">
+      <label class="fl">Tipo de período</label>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;" id="periodTypeRow">
+        <button class="btn btn-ghost" style="font-size:12px;" onclick="setPeriodTemplate('semestre')">Semestral</button>
+        <button class="btn btn-ghost" style="font-size:12px;" onclick="setPeriodTemplate('trimestre')">Trimestral</button>
+        <button class="btn btn-ghost" style="font-size:12px;" onclick="setPeriodTemplate('anual')">Anual</button>
+        <button class="btn btn-ghost" style="font-size:12px;" onclick="setPeriodTemplate('libre')">Libre</button>
+      </div>
+    </div>
+    <div class="fg" id="periodPresets" style="display:none;">
+      <label class="fl">Opciones rápidas</label>
+      <div id="periodPresetList" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Nombre del período *</label>
+      <input class="finput" id="periodCustomInput" placeholder="Ej: Sem I - 2026">
+      <div style="font-size:11px;color:var(--gray);margin-top:4px;">Este nombre aparecerá en los reportes y exportaciones.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="savePeriod()">✔ Aplicar período</button>
+      <button class="btn btn-ghost" onclick="closeM('mPeriod')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div id="toast"><span id="tIcon"></span><span id="tMsg"></span></div>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+const PERIODS=['Q1-2024','Q2-2024','Q3-2024','Q4-2024','Q1-2025','Q2-2025','Q3-2025','Q4-2025','Q1-2026','Q2-2026','Q3-2026','Q4-2026'];
+const EMOJIS=['🔬','🌱','💧','🧪','🐛','🌾','🧬','🪴','🌿','🏗️','⚗️','🦠','🌡️','🔭'];
+const BGCOLORS=['#EEF4FF','#ECFDF5','#FFF7ED','#F5F3FF','#FEF2F2','#F0FDFA'];
+
+const S = {
+  labs: [],
+  tickets: [],
+  confirmed: [],
+  currentLabId: null,
+  currentScan: null,
+  currentTktCode: null,
+  resolvingId: null,
+  tktCounter: 1,
+  period: calcDefaultPeriod(),
+  _pendingLabId: null,
+  _tktDetailId: null,
+};
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+const PAGES=['labs','labdetail','scan','tickets','inventory','dashboard','reports'];
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  const mainPages=['labs','tickets','inventory','dashboard','reports'];
+  document.querySelectorAll('.np').forEach((b,i)=>b.classList.toggle('on',mainPages[i]===id));
+  document.querySelectorAll('.mt').forEach((b,i)=>b.classList.toggle('on',mainPages[i]===id));
+  if(id==='labs')      { renderLabs(); syncPeriodSelect(); }
+  if(id==='labdetail') {
+    const lab=S.labs.find(l=>l.id===S.currentLabId);
+    if(lab&&lab._tableNeedsRefresh){ lab._tableNeedsRefresh=false; renderLabDetail(); }
+    else renderLabDetail();
+  }
+  if(id==='tickets')   { renderTickets(); updateSelects(); }
+  if(id==='inventory') { renderInventory(); updateSelects(); }
+  if(id==='dashboard') renderDashboard();
+}
+
+function syncPeriodSelect(){
+  const btn=document.getElementById('periodBtnLabel');
+  if(btn) btn.textContent=S.period;
+}
+
+function openPeriodModal(){
+  document.getElementById('periodCustomInput').value=S.period;
+  const cv=document.getElementById('mPeriodCurrentVal');
+  if(cv) cv.textContent=S.period||currentPeriod();
+  document.getElementById('periodPresets').style.display='none';
+  document.getElementById('mPeriod').classList.add('open');
+}
+
+function setPeriodTemplate(type){
+  const now=new Date();
+  const y=now.getFullYear();
+  const presets=[];
+  if(type==='semestre'){
+    for(let yr=y;yr<=y+1;yr++){
+      presets.push('Sem I - '+yr,'Sem II - '+yr);
+    }
+  } else if(type==='trimestre'){
+    for(let yr=y;yr<=y+1;yr++){
+      presets.push('T1-'+yr,'T2-'+yr,'T3-'+yr,'T4-'+yr);
+    }
+  } else if(type==='anual'){
+    for(let yr=y-1;yr<=y+2;yr++) presets.push(''+yr);
+  } else {
+    // Libre: solo limpiar y enfocar input
+    document.getElementById('periodPresets').style.display='none';
+    document.getElementById('periodCustomInput').value='';
+    document.getElementById('periodCustomInput').focus();
+    return;
+  }
+  const list=document.getElementById('periodPresetList');
+  list.innerHTML=presets.map(p=>`
+    <button class="btn btn-ghost" style="font-size:13px;text-align:left;justify-content:flex-start;${S.period===p?'background:var(--green-lt);border-color:var(--green);font-weight:700;':''}"
+      onclick="document.getElementById('periodCustomInput').value='${p}'">
+      ${S.period===p?'✓ ':''}${p}
+    </button>`).join('');
+  document.getElementById('periodPresets').style.display='block';
+  // Pre-fill input with first matching or current
+  if(presets.includes(S.period)) document.getElementById('periodCustomInput').value=S.period;
+}
+
+async function savePeriod(){
+  const val=document.getElementById('periodCustomInput').value.trim();
+  if(!val){toast('Ingresa un nombre de período','⚠️');return;}
+  const changed=val!==S.period;
+  S.period=val;
+  syncPeriodSelect();
+  closeM('mPeriod');
+  if(changed){
+    toast('Cargando datos de '+val+'…','📅');
+    // Reload inventory and tickets for new period from Sheets
+    setLoading(true);
+    try{
+      const [invDocs, tktDocs] = await Promise.all([
+        fbQuery('inventory',[fbFilter('periodo','===',val)]),
+        fbList('tickets'),
+      ]);
+      {
+        S.confirmed=invDocs.map(r=>({
+          labId:String(r.labId),labName:r.labNombre,
+          code:String(r.codigo),desc:r.descripcion,
+          brand:r.marca,area:r.area,status:r.estado,
+          timestamp:r.timestamp,periodo:r.periodo||'',
+        }));
+        S.tickets=tktDocs.map(r=>({
+          id:r.id,labId:String(r.labId),labName:r.labNombre,
+          code:String(r.codigo),type:r.tipo,desc:r.descripcion,
+          action:r.accion,status:r.estado,
+          createdBy:r.creadoPor,createdAt:r.creadoEn,
+          resolvedBy:r.resueltoPor,resolvedAt:r.resueltoEn,
+          diffs:safeJson(r.diffs,[]),timeline:safeJson(r.timeline,[]),
+        }));
+        S.tktCounter=S.tickets.length>0?Math.max(...S.tickets.map(t=>parseInt(t.id.replace('TKT-',''))||0))+1:1;
+        // Recalculate lab counters
+        S.labs.forEach(lab=>{
+          lab.openTickets=S.tickets.filter(t=>t.labId===lab.id&&t.status==='open').length;
+          lab.pendingTickets=S.tickets.filter(t=>t.labId===lab.id&&t.status==='pending').length;
+          lab.resolvedTickets=S.tickets.filter(t=>t.labId===lab.id&&t.status==='resolved').length;
+          lab.verified=S.confirmed.filter(c=>c.labId===lab.id).length;
+          // Clear in-memory db so lab re-fetches patrimonio on next open
+          lab.db=[];
+        });
+        toast('✅ Período '+val+' — '+S.confirmed.length+' verificaciones cargadas','📅');
+      }
+    }catch(e){toast('Error al cambiar período: '+e.message,'⚠️');}
+    finally{setLoading(false);}
+  } else {
+    toast('Período: '+val,'📅');
+  }
+  renderLabs();
+  updateNBadge();
+}
+
+// ═══════════════════════════════════════════
+// LABS PAGE
+// ═══════════════════════════════════════════
+function renderLabs(){
+  const labs=S.labs;
+  const complete=labs.filter(l=>l.totalEquip>0&&l.verified>=l.totalEquip&&S.tickets.filter(t=>t.labId===l.id&&t.status!=='resolved').length===0).length;
+  const inprog=labs.filter(l=>l.verified>0&&!(l.verified>=l.totalEquip&&S.tickets.filter(t=>t.labId===l.id&&t.status!=='resolved').length===0)).length;
+  const nostart=labs.filter(l=>l.verified===0).length;
+  const openT=S.tickets.filter(t=>t.status==='open').length;
+  document.getElementById('labsStats').innerHTML=`
+    <div class="sc b"><div class="sn">${labs.length}</div><div class="sl">Laboratorios</div></div>
+    <div class="sc g"><div class="sn">${complete}</div><div class="sl">Verificación completa</div></div>
+    <div class="sc a"><div class="sn">${inprog}</div><div class="sl">En proceso</div></div>
+    <div class="sc p"><div class="sn">${nostart}</div><div class="sl">Sin iniciar</div></div>
+    <div class="sc r"><div class="sn">${openT}</div><div class="sl">Tickets abiertos</div></div>`;
+  if(labs.length===0){
+    document.getElementById('labsGrid').innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="ei">🏫</div><div>No hay laboratorios registrados</div><div style="font-size:12px;margin-top:6px;">Haz clic en "+ Nuevo laboratorio" para comenzar</div></div>`;
+    return;
+  }
+  document.getElementById('labsGrid').innerHTML=labs.map(l=>{
+    const conf=S.confirmed.filter(c=>c.labId===l.id).length;
+    const total=l.totalEquip||0;
+    const pct=total>0?Math.round(conf/total*100):0;
+    const openTkts=S.tickets.filter(t=>t.labId===l.id&&t.status==='open').length;
+    const closedTkts=S.tickets.filter(t=>t.labId===l.id&&t.status==='resolved').length;
+    const optimo=l.db?l.db.filter(e=>e.status==='ÓPTIMO').length:0;
+    const pctOptimo=total>0?Math.round(optimo/total*100):0;
+    let statusBadge,statusColor;
+    if(total===0){statusBadge='Sin iniciar';statusColor='bg-gray';}
+    else if(conf>=total&&openTkts===0){statusBadge='Verificación completa';statusColor='bg-ok';}
+    else if(conf>0){statusBadge='En proceso';statusColor='bg-warn';}
+    else{statusBadge='Sin iniciar';statusColor='bg-gray';}
+    return `<div class="lab-card" onclick="openLabPage('${l.id}')">
+      <div class="lab-card-head">
+        <div class="lab-icon" style="background:${l.color||'#EEF4FF'}">${l.icon||'🔬'}</div>
+        <div><div class="lab-name">${l.name}</div><div class="lab-code">${l.id}${l.facultad?' · '+l.facultad:''}</div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Equipos revisados</span><span>${conf}/${total}</span></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${pct===100?'#22C55E':'var(--green)'}"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Incidentes abiertos/cerrados</span><span>${openTkts} abiertos · ${closedTkts} cerrados</span></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${closedTkts+openTkts>0?Math.round(closedTkts/(closedTkts+openTkts)*100):0}%;background:var(--amber)"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Equipos en estado óptimo</span><span>${pctOptimo}%</span></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pctOptimo}%;background:var(--blue)"></div></div>
+      </div>
+      <div class="lab-badges">
+        <span class="badge ${statusColor}">${statusBadge}</span>
+        ${openTkts>0?`<span class="badge bg-red">🎫 ${openTkts} ticket${openTkts>1?'s':''}</span>`:''}
+        ${l.areas&&l.areas.length>0?`<span class="badge bg-blue">📍 ${l.areas.length} área${l.areas.length>1?'s':''}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// LAB DETAIL PAGE
+// ═══════════════════════════════════════════
+async function openLabPage(labId){
+  const lab=S.labs.find(l=>l.id===labId);
+  if(!lab) return;
+  S.currentLabId=labId;
+  S._pendingLabId=labId;
+  // Update header immediately
+  document.getElementById('ldTitle').textContent=(lab.icon||'🔬')+' '+lab.name;
+  document.getElementById('ldSub').textContent=`${lab.id}${lab.facultad?' · '+lab.facultad:''}${lab.dpto?' · Dpto. '+lab.dpto:''} · Resp: ${lab.responsible||'—'}`;
+  goPage('labdetail');
+  // Always re-sync this lab's data from Sheets (inventory + tickets + db)
+  const lbl=document.getElementById('labUploadLabel');
+  if(lbl) lbl.textContent='⏳ Sincronizando con Sheets…';
+  setLoading(true);
+  try{
+    // Parallel: inventory + tickets + patrimonio db from Firebase
+    const periodo=currentPeriod();
+    const [invDocs, tktDocs, _dbLoaded] = await Promise.all([
+      fbQuery('inventory',[fbFilter('labId','===',labId),fbFilter('periodo','===',periodo)]),
+      fbQuery('tickets',[fbFilter('labId','===',labId)]),
+      lab.db.length===0 ? loadLabDB(labId) : Promise.resolve(true),
+    ]);
+    // Update inventory
+    S.confirmed=S.confirmed.filter(c=>c.labId!==labId);
+    const freshInv=invDocs.map(r=>({
+      labId:String(r.labId),labName:r.labNombre,
+      code:String(r.codigo),desc:r.descripcion,
+      brand:r.marca,area:r.area,status:r.estado,
+      timestamp:r.timestamp,periodo:r.periodo||'',
+    }));
+    S.confirmed.push(...freshInv);
+    lab.verified=freshInv.length;
+    // Update tickets
+    S.tickets=S.tickets.filter(t=>t.labId!==labId);
+    const freshTkts=tktDocs.map(r=>({
+      id:r.id,labId:String(r.labId),labName:r.labNombre,
+      code:String(r.codigo),type:r.tipo,desc:r.descripcion,
+      action:r.accion,status:r.estado,
+      createdBy:r.creadoPor,createdAt:r.creadoEn,
+      resolvedBy:r.resueltoPor,resolvedAt:r.resueltoEn,
+      diffs:safeJson(r.diffs,[]),timeline:safeJson(r.timeline,[]),
+    }));
+    S.tickets.push(...freshTkts);
+    lab.openTickets=freshTkts.filter(t=>t.status==='open').length;
+    lab.pendingTickets=freshTkts.filter(t=>t.status==='pending').length;
+    lab.resolvedTickets=freshTkts.filter(t=>t.status==='resolved').length;
+  }catch(e){toast('Error al sincronizar: '+e.message,'⚠️');}
+  finally{setLoading(false);}
+  if(lbl) lbl.textContent=lab.db.length>0?`✅ ${lab.db.length} equipos cargados`:'Arrastra el Excel C7 de Patrimonio aquí';
+  renderLabDetail();
+  updateNBadge();
+}
+
+async function syncLabFromSheets(){
+  const labId=S.currentLabId;
+  if(!labId) return;
+  const lab=S.labs.find(l=>l.id===labId);
+  if(!lab) return;
+  // Check if any item is still being saved to Sheets
+  const stillSaving=S.confirmed.some(c=>c.labId===labId&&c._saving);
+  if(stillSaving){
+    toast('Guardando datos en Sheets, espera…','⏳');
+    await new Promise(r=>setTimeout(r,4000));
+  } else {
+    // Small delay anyway to allow any in-flight JSONP calls to complete
+    await new Promise(r=>setTimeout(r,800));
+  }
+  const btn=document.getElementById('ldSyncBtn');
+  if(btn){btn.textContent='⏳';btn.disabled=true;}
+  toast('Sincronizando…','🔄');
+  try{
+    // Parallel: inventory + tickets from Firebase
+    const periodo=currentPeriod();
+    const [invDocs, tktDocs] = await Promise.all([
+      fbQuery('inventory',[fbFilter('labId','===',labId),fbFilter('periodo','===',periodo)]),
+      fbQuery('tickets',[fbFilter('labId','===',labId)]),
+    ]);
+    S.confirmed=S.confirmed.filter(c=>c.labId!==labId);
+    S.confirmed.push(...invDocs.map(r=>({
+      labId:String(r.labId),labName:r.labNombre,
+      code:String(r.codigo),desc:r.descripcion,
+      brand:r.marca,area:r.area,status:r.estado,
+      timestamp:r.timestamp,periodo:r.periodo||'',
+    })));
+    lab.verified=S.confirmed.filter(c=>c.labId===labId).length;
+    S.tickets=S.tickets.filter(t=>t.labId!==labId);
+    const fresh=tktDocs.map(r=>({
+      id:r.id,labId:String(r.labId),labName:r.labNombre,
+      code:String(r.codigo),type:r.tipo,desc:r.descripcion,
+      action:r.accion,status:r.estado,
+      createdBy:r.creadoPor,createdAt:r.creadoEn,
+      resolvedBy:r.resueltoPor,resolvedAt:r.resueltoEn,
+      diffs:safeJson(r.diffs,[]),timeline:safeJson(r.timeline,[]),
+    }));
+    S.tickets.push(...fresh);
+    lab.openTickets=fresh.filter(t=>t.status==='open').length;
+    lab.pendingTickets=fresh.filter(t=>t.status==='pending').length;
+    lab.resolvedTickets=fresh.filter(t=>t.status==='resolved').length;
+    lab.lastSync=new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+    // Update sync time display
+    const syncLbl=document.getElementById('ldSyncTime');
+    if(syncLbl) syncLbl.textContent='Última sync: '+lab.lastSync;
+    renderLabDetail();
+    renderLabTable();
+    updateC7Progress();
+    toast('✅ Verificación actualizada · '+S.confirmed.filter(c=>c.labId===labId).length+' verificados','🔄');
+  }catch(e){toast('Error al sincronizar: '+e.message,'⚠️');}
+  finally{if(btn){btn.textContent='🔄';btn.disabled=false;}}
+}
+
+function renderLabDetail(){
+  const labId=S.currentLabId;
+  const lab=S.labs.find(l=>l.id===labId);
+  if(!lab) return;
+  const conf=S.confirmed.filter(c=>c.labId===labId);
+  const total=lab.totalEquip||0;
+  const openT=S.tickets.filter(t=>t.labId===labId&&t.status==='open').length;
+  const pendT=S.tickets.filter(t=>t.labId===labId&&t.status==='pending').length;
+  const pend=Math.max(0,total-conf.length);
+  // Stats
+  document.getElementById('ldStats').innerHTML=`
+    <div class="sc b"><div class="sn">${total}</div><div class="sl">Total equipos</div></div>
+    <div class="sc g"><div class="sn">${conf.length}</div><div class="sl">Equipos verificados</div></div>
+    <div class="sc p"><div class="sn">${pend}</div><div class="sl">Pendientes verificación</div></div>
+    <div class="sc r"><div class="sn">${openT}</div><div class="sl">Tickets abiertos</div></div>`;
+  // Status stats from DB
+  const optimo=lab.db.filter(e=>e.status==='ÓPTIMO').length;
+  const mant=lab.db.filter(e=>e.status==='EN MANTENIMIENTO').length;
+  const rep=lab.db.filter(e=>e.status==='EN REPARACIÓN').length;
+  const baja=lab.db.filter(e=>e.status==='DE BAJA').length;
+  document.getElementById('ldStatusStats').innerHTML=`
+    <div class="sc g"><div class="sn">${optimo}</div><div class="sl">Operativo</div></div>
+    <div class="sc a"><div class="sn">${mant}</div><div class="sl">En mantenimiento</div></div>
+    <div class="sc b"><div class="sn">${rep}</div><div class="sl">En reparación</div></div>
+    <div class="sc r"><div class="sn">${baja}</div><div class="sl">Dado de baja</div></div>`;
+  // Scan button
+  document.getElementById('ldScanBtn').disabled=lab.db.length===0;
+  // Area filter — always rebuild from actual db items
+  const areaFilter=document.getElementById('ldAreaFilter');
+  if(areaFilter){
+    // Also sync lab.areas from db so it stays in sync
+    const dbAreas=[...new Set(lab.db.map(e=>e.area).filter(a=>a&&a!=='—'))];
+    dbAreas.forEach(a=>{if(!lab.areas.includes(a)) lab.areas.push(a);});
+    areaFilter.innerHTML='<option value="all">Todas las áreas</option>'+dbAreas.map(a=>`<option value="${a}">${a}</option>`).join('');
+  }
+  // Show/hide table
+  const hasDB=lab.db.length>0;
+  document.getElementById('ldTableCard').style.display=hasDB?'block':'none';
+  if(hasDB){ renderLabTable(); updateC7Progress(); }
+}
+
+function renderLabTable(){
+  const labId=S.currentLabId;
+  const lab=S.labs.find(l=>l.id===labId);
+  if(!lab||!lab.db) return;
+  const q=(document.getElementById('ldSearch')?.value||'').toLowerCase();
+  const af=document.getElementById('ldAreaFilter')?.value||'all';
+  const vf=document.getElementById('ldVerifFilter')?.value||'all';
+  let items=lab.db;
+  if(q) items=items.filter(e=>e.code.toLowerCase().includes(q)||e.desc.toLowerCase().includes(q));
+  if(af!=='all') items=items.filter(e=>e.area===af);
+  // Filter by verification status
+  if(vf!=='all'){
+    items=items.filter(e=>{
+      const vStatus=getVerifStatus(labId,e.code);
+      return vStatus===vf;
+    });
+  }
+  const stColors={'ÓPTIMO':'#DCFCE7','EN MANTENIMIENTO':'#FEF3C7','EN REPARACIÓN':'#DBEAFE','DE BAJA':'#FEE2E2'};
+  document.getElementById('ldTableBody').innerHTML=items.map((e,i)=>{
+    const vs=getVerifStatus(labId,e.code);
+    const tkt=S.tickets.find(t=>t.labId===labId&&t.code===e.code&&t.status!=='resolved');
+    let vBadge;
+      const conf=S.confirmed.find(c=>c.labId===labId&&c.code===e.code);
+    const confPeriod=conf?.periodo||conf?.period||'';
+    const curPer=currentPeriod();
+    const staleVerif=conf&&confPeriod&&confPeriod!==curPer;
+    if(vs==='conforme'){
+      const ts=conf?.timestamp||'';
+      vBadge=staleVerif
+        ?`<span class="verif-badge v-stale" title="Verificado en ${confPeriod} — reverificar">⚠️ Rev. anterior</span>`
+        :`<span class="verif-badge v-ok" title="Verificado: ${ts}">✔ Conforme</span>`;
+    } else if(vs==='con_ticket') vBadge=`<button class="verif-badge v-tkt" onclick="openTktDetail('${tkt?.id||''}')">🎫 Con ticket</button>`;
+    else vBadge=`<span class="verif-badge v-pend">⏳ Pendiente</span>`;
+    return `<tr>
+      <td style="color:var(--gray);font-size:11px;">${i+1}</td>
+      <td style="font-family:monospace;font-size:12px;">${e.code}</td>
+      <td>${e.desc}</td>
+      <td><span style="background:${stColors[e.status]||'#f5f5f5'};padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;">${e.status}</span></td>
+      <td style="font-size:12px;">${e.area!=='—'?e.area:'—'}</td>
+      <td style="font-size:11px;color:var(--gray);">${e.obs||''}</td>
+      <td>${vBadge}</td>
+    </tr>`;
+  }).join('');
+}
+
+function getVerifStatus(labId,code){
+  const conf=S.confirmed.find(c=>c.labId===labId&&c.code===code);
+  if(!conf) return 'pendiente';
+  const tkt=S.tickets.find(t=>t.labId===labId&&t.code===code&&t.status!=='resolved');
+  return tkt?'con_ticket':'conforme';
+}
+
+function updateC7Progress(){
+  const labId=S.currentLabId;
+  const lab=S.labs.find(l=>l.id===labId);
+  if(!lab||!lab.db) return;
+  const total=lab.db.length;
+  const conf=S.confirmed.filter(c=>c.labId===labId).length;
+  const openT=S.tickets.filter(t=>t.labId===labId&&t.status!=='resolved').length;
+  const pct=total>0?Math.round(conf/total*100):0;
+  const ready=pct===100&&openT===0;
+  document.getElementById('c7ProgressPct').textContent=pct+'%';
+  document.getElementById('c7ProgressFill').style.width=pct+'%';
+  document.getElementById('c7ProgressLabel').textContent=ready?'✅ Todo verificado — listo para exportar':`${conf} de ${total} equipos verificados${openT>0?' · '+openT+' ticket(s) pendiente(s)':''}`;
+  document.getElementById('exportC7Btn').disabled=!ready;
+}
+
+function openTktDetail(tktId){
+  const t=S.tickets.find(t=>t.id===tktId);
+  if(!t){toast('Ticket no encontrado','⚠️');return;}
+  S._tktDetailId=tktId;
+  document.getElementById('mTDTitle').textContent='🎫 '+t.id;
+  const stLabel={open:'🔴 Abierto',pending:'🟡 En revisión',resolved:'🟢 Resuelto'};
+  document.getElementById('mTDBody').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;margin-bottom:12px;">
+      <div><label style="font-size:11px;color:var(--gray);">Estado</label><div>${stLabel[t.status]||t.status}</div></div>
+      <div><label style="font-size:11px;color:var(--gray);">Código</label><div style="font-family:monospace;">${t.code}</div></div>
+      <div><label style="font-size:11px;color:var(--gray);">Tipo</label><div>${t.type}</div></div>
+      <div><label style="font-size:11px;color:var(--gray);">Creado por</label><div>${t.createdBy}</div></div>
+    </div>
+    <div style="font-size:13px;margin-bottom:8px;"><label style="font-size:11px;color:var(--gray);">Descripción</label><div>${t.desc}</div></div>
+    ${t.status!=='resolved'?`<div class="btn-row" style="margin-bottom:0;"><button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="closeM('mTktDetail');openResolveM('${t.id}')">✔ Resolver</button></div>`:''}`;
+  document.getElementById('mTktDetail').classList.add('open');
+}
+
+function goToTicket(){
+  const id=S._tktDetailId;
+  closeM('mTktDetail');
+  goPage('tickets');
+  updateSelects();
+  setTimeout(()=>{
+    const el=document.getElementById('tkt-'+id);
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='2px solid var(--gold)';setTimeout(()=>el.style.outline='',1800);}
+  },300);
+}
+
+// ═══════════════════════════════════════════
+// ADD / EDIT / DELETE LAB
+// ═══════════════════════════════════════════
+function openAddLabModal(){
+  ['newLabName','newLabCode','newLabFacultad','newLabDpto','newLabResp','newLabIcon'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('mAddLab').classList.add('open');
+}
+
+function addLab(){
+  const name=document.getElementById('newLabName').value.trim();
+  if(!name){toast('El nombre es obligatorio','⚠️');return;}
+  const codeInput=document.getElementById('newLabCode').value.trim().toUpperCase();
+  if(!codeInput){toast('El código es obligatorio','⚠️');return;}
+  if(S.labs.find(l=>l.id===codeInput)){toast('Ya existe un laboratorio con ese código','⚠️');return;}
+  const newLab={
+    id:codeInput, name,
+    facultad:document.getElementById('newLabFacultad').value.trim()||'Agronomía',
+    dpto:document.getElementById('newLabDpto').value.trim()||'—',
+    responsible:document.getElementById('newLabResp').value.trim()||'—',
+    icon:document.getElementById('newLabIcon').value.trim()||'🔬',
+    color:BGCOLORS[S.labs.length%BGCOLORS.length],
+    area:'—', areas:[],
+    db:[], confirmed:[], subAreas:[],
+    totalEquip:0, verified:0, openTickets:0, pendingTickets:0, resolvedTickets:0,
+    period:S.period,
+    history:PERIODS.map(p=>({period:p,incidencias:0,resueltos:0}))
+  };
+  S.labs.push(newLab);
+  closeM('mAddLab');
+  renderLabs();
+  updateSelects();
+  toast('Laboratorio "'+name+'" ('+codeInput+') agregado ✔','✅');
+  addLab_persist(newLab);
+}
+
+async function addLab_persist(lab){
+  await persistLab(lab);
+}
+
+function openEditLab(){
+  const lab=S.labs.find(l=>l.id===S._pendingLabId);
+  if(!lab) return;
+  document.getElementById('editLabName').value=lab.name;
+  document.getElementById('editLabCode').value=lab.id;
+  document.getElementById('editLabFacultad').value=lab.facultad||'';
+  document.getElementById('editLabDpto').value=lab.dpto||'';
+  document.getElementById('editLabResp').value=lab.responsible==='—'?'':lab.responsible;
+  document.getElementById('editLabIcon').value=lab.icon||'🔬';
+  document.getElementById('editAreaInput').value='';
+  renderEditAreas(lab.areas||[]);
+  document.getElementById('mEditLab').classList.add('open');
+}
+
+function renderEditAreas(areas){
+  const c=document.getElementById('editAreasList');
+  if(!c) return;
+  c.innerHTML=areas.map((a,i)=>`<span class="tag">${a}<button onclick="removeEditArea(${i})">×</button></span>`).join('');
+}
+
+function addEditArea(){
+  const input=document.getElementById('editAreaInput');
+  const val=input.value.trim();
+  if(!val) return;
+  const lab=S.labs.find(l=>l.id===S._pendingLabId);
+  if(!lab) return;
+  if(!lab.areas) lab.areas=[];
+  if(lab.areas.includes(val)){toast('Esa área ya existe','⚠️');return;}
+  lab.areas.push(val);
+  renderEditAreas(lab.areas);
+  input.value='';
+}
+
+function removeEditArea(idx){
+  const lab=S.labs.find(l=>l.id===S._pendingLabId);
+  if(!lab||!lab.areas) return;
+  lab.areas.splice(idx,1);
+  renderEditAreas(lab.areas);
+}
+
+function saveEditLab(){
+  const lab=S.labs.find(l=>l.id===S._pendingLabId);
+  if(!lab) return;
+  const name=document.getElementById('editLabName').value.trim();
+  if(!name){toast('El nombre es obligatorio','⚠️');return;}
+  lab.name=name;
+  lab.facultad=document.getElementById('editLabFacultad').value.trim()||'Agronomía';
+  lab.dpto=document.getElementById('editLabDpto').value.trim()||'—';
+  lab.responsible=document.getElementById('editLabResp').value.trim()||'—';
+  lab.icon=document.getElementById('editLabIcon').value.trim()||'🔬';
+  lab.area=lab.areas&&lab.areas.length>0?lab.areas[0]:'—';
+  closeM('mEditLab');
+  // Refresh lab detail header
+  document.getElementById('ldTitle').textContent=(lab.icon||'🔬')+' '+lab.name;
+  document.getElementById('ldSub').textContent=`${lab.id}${lab.facultad?' · '+lab.facultad:''}${lab.dpto?' · Dpto. '+lab.dpto:''} · Resp: ${lab.responsible||'—'}`;
+  renderLabs();
+  persistLab(lab);
+  toast('Laboratorio actualizado ✔','✅');
+}
+
+function confirmDeleteLab(){
+  const lab=S.labs.find(l=>l.id===S._pendingLabId);
+  if(!lab) return;
+  const hasData=S.confirmed.filter(c=>c.labId===lab.id).length>0;
+  const hasTkts=S.tickets.filter(t=>t.labId===lab.id).length>0;
+  let msg=`¿Eliminar "${lab.name}" (${lab.id})?`;
+  if(hasData||hasTkts) msg+='\n\nEste lab tiene datos registrados. Se perderán.';
+  if(confirm(msg)) deleteLab(lab.id);
+}
+
+function deleteLab(labId){
+  S.labs=S.labs.filter(l=>l.id!==labId);
+  S.confirmed=S.confirmed.filter(c=>c.labId!==labId);
+  S.tickets=S.tickets.filter(t=>t.labId!==labId);
+  if(S.currentLabId===labId) S.currentLabId=null;
+  goPage('labs');
+  renderLabs();
+  updateSelects();
+  toast('Laboratorio eliminado','🗑');
+  // Delete from Firebase
+  fbDelete('labs', labId);
+  fbDeleteByField('inventory', 'labId', labId);
+  fbDeleteByField('tickets', 'labId', labId);
+  fbDeleteByField('patrimonio', 'labId', labId);
+  // Sync to Sheets
+  syncToSheets('deleteLab',{id:labId});
+  syncToSheets('deleteByLab',{labId});
+  syncToSheets('deleteLabDB',{labId});
+}
+
+// ═══════════════════════════════════════════
+// FILE IMPORT — C7 PARSER
+// ═══════════════════════════════════════════
+function handleLabFile(file){
+  if(!file) return;
+  const ext=file.name.split('.').pop().toLowerCase();
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const wb=XLSX.read(e.target.result,{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
+    const flatText=data.slice(0,10).flat().map(c=>String(c||'')).join(' ').toLowerCase();
+    const isC7=flatText.includes('sunedu')||flatText.includes('anexo')||flatText.includes('operativ')||flatText.includes('patrimonial')||flatText.includes('licenciamiento');
+    if(isC7){
+      parseC7(data);
+      return;
+    }
+    // Fallback genérico
+    const headers=(data[0]||[]).map(h=>String(h||'').trim());
+    const rows=data.slice(1).map(r=>{const o={};headers.forEach((h,i)=>o[h]=String(r[i]||'').trim());return o;}).filter(r=>Object.values(r).some(v=>v));
+    S.rawHeaders=headers; S.rawRows=rows;
+    showLabMapper(headers,rows);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseC7(data){
+  const lab=S.labs.find(l=>l.id===S._pendingLabId);
+  if(!lab) return;
+  const equipos=[];
+  const areasDetectadas=new Set();
+  const labAreas=lab.areas||[];
+  for(let i=8;i<data.length;i++){
+    const row=data[i];
+    if(!row||!row[2]) continue;
+    const codigo=String(row[2]).trim().toUpperCase();
+    if(!codigo) continue;
+    const nombre=String(row[1]||'').trim();
+    const d=String(row[3]||'').trim().toUpperCase();
+    const e2=String(row[4]||'').trim().toUpperCase();
+    const f=String(row[5]||'').trim().toUpperCase();
+    const g=String(row[6]||'').trim().toUpperCase();
+    let estado='ÓPTIMO';
+    if(g==='X') estado='DE BAJA';
+    else if(f==='X') estado='EN REPARACIÓN';
+    else if(e2==='X') estado='EN MANTENIMIENTO';
+    else if(d==='X') estado='ÓPTIMO';
+    const obsRaw=String(row[8]||'').trim();
+    let area='—', obs=obsRaw;
+    // First: check if obs starts with a known area label
+    const areaFromKnown=labAreas.find(a=>obsRaw.toLowerCase().startsWith(a.toLowerCase()));
+    if(areaFromKnown){
+      area=areaFromKnown;
+      obs=obsRaw.slice(areaFromKnown.length).replace(/^[\s\-:]+/,'').trim();
+      areasDetectadas.add(area);
+    } else {
+      // Broad pattern: any text that looks like "Area X", "Área A1", "Ambiente X" at start, optionally followed by separator
+      const m=obsRaw.match(/^(\s*(?:área|area|ambiente|sala|zona|lab\.?|laboratorio)\s*[A-Za-z0-9\.\-\_\s]{0,30}?)(?:\s*[-:]\s*(.*))?$/i);
+      if(m&&m[1].trim()){
+        area=m[1].trim();
+        obs=(m[2]||'').trim();
+        areasDetectadas.add(area);
+      } else {
+        // Fallback: any "Etiqueta - obs" pattern where etiqueta <= 40 chars
+        const m2=obsRaw.match(/^([^-:]{2,40})\s*[-:]\s*(.+)$/);
+        if(m2&&m2[1].trim().split(/\s+/).length<=6){
+          area=m2[1].trim();
+          obs=m2[2].trim();
+          areasDetectadas.add(area);
+        }
+      }
+    }
+    equipos.push({code:codigo,desc:nombre,brand:'—',area,status:estado,obs,fechaMant:String(row[7]||'').trim()});
+  }
+  if(equipos.length===0){toast('No se encontraron equipos','⚠️');return;}
+  // Reset all previous progress — local and in Sheets
+  S.confirmed=S.confirmed.filter(c=>c.labId!==lab.id);
+  S.tickets=S.tickets.filter(t=>t.labId!==lab.id);
+  lab.openTickets=0;lab.pendingTickets=0;lab.resolvedTickets=0;
+  fbDeleteByField('inventory','labId',lab.id);
+  fbDeleteByField('tickets','labId',lab.id);
+  syncToSheets('deleteByLab',{labId:lab.id});
+  lab.db=equipos;
+  lab.totalEquip=equipos.length;
+  lab.verified=0;
+  // Replace areas from fresh parse (don't accumulate old ones)
+  lab.areas=[...areasDetectadas];
+  const lbl=document.getElementById('labUploadLabel');
+  if(lbl) lbl.textContent='✅ '+equipos.length+' equipos cargados';
+  toast(equipos.length+' equipos cargados desde C7 ✔','📂');
+  if(areasDetectadas.size>0) toast('Áreas detectadas: '+[...areasDetectadas].join(', '),'📍');
+  renderLabDetail();
+  persistLabDB(lab);
+}
+
+function showLabMapper(headers,rows){
+  const codeKw=['codigo','code','inventario','cod','id'];
+  const descKw=['descripcion','descripción','denominacion','denominación','nombre','equipo','bien'];
+  const statusKw=['estado','status','condicion'];
+  const autoMap={};
+  headers.forEach(h=>{
+    const hn=h.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if(codeKw.some(k=>hn.includes(k))) autoMap.code=h;
+    if(descKw.some(k=>hn.includes(k))) autoMap.desc=h;
+    if(statusKw.some(k=>hn.includes(k))) autoMap.status=h;
+  });
+  const opts=['<option value="">— No incluido —</option>',...headers.map(h=>`<option value="${h}">${h}</option>`)].join('');
+  const fields=[{k:'code',l:'Código *'},{k:'desc',l:'Descripción *'},{k:'status',l:'Estado'}];
+  const sec=document.getElementById('ldMapperSection');
+  sec.style.display='block';
+  sec.innerHTML=`<div style="font-size:12px;font-weight:600;margin-bottom:8px;">Mapear columnas</div>
+    ${fields.map(f=>`<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px;align-items:center;">
+      <div style="font-size:12px;font-weight:600;padding:7px;background:var(--fog);border-radius:6px;">${f.l}</div>
+      <select class="fselect" id="lmap_${f.k}">${opts}</select></div>`).join('')}
+    <button class="btn btn-blue" style="width:100%;margin-top:8px;" onclick="applyLabMapping()">✔ Confirmar y cargar</button>`;
+  fields.forEach(f=>{const s=document.getElementById('lmap_'+f.k);if(s&&autoMap[f.k])s.value=autoMap[f.k];});
+}
+
+function applyLabMapping(){
+  const codeCol=document.getElementById('lmap_code')?.value;
+  const descCol=document.getElementById('lmap_desc')?.value;
+  const statusCol=document.getElementById('lmap_status')?.value;
+  if(!codeCol||!descCol){toast('Código y Descripción son obligatorios','⚠️');return;}
+  const lab=S.labs.find(l=>l.id===S._pendingLabId);
+  // Reset all previous progress — local and in Sheets
+  S.confirmed=S.confirmed.filter(c=>c.labId!==lab.id);
+  S.tickets=S.tickets.filter(t=>t.labId!==lab.id);
+  lab.openTickets=0;lab.pendingTickets=0;lab.resolvedTickets=0;lab.verified=0;
+  fbDeleteByField('inventory','labId',lab.id);
+  fbDeleteByField('tickets','labId',lab.id);
+  syncToSheets('deleteByLab',{labId:lab.id});
+  lab.db=S.rawRows.filter(r=>r[codeCol]).map(r=>({
+    code:String(r[codeCol]).trim().toUpperCase(),
+    desc:r[descCol]||'',brand:'—',area:'—',
+    status:statusCol?(r[statusCol]||'ÓPTIMO'):'ÓPTIMO',obs:'',fechaMant:'',
+  }));
+  lab.totalEquip=lab.db.length;
+  document.getElementById('ldMapperSection').style.display='none';
+  toast(lab.db.length+' equipos cargados','📂');
+  renderLabDetail();
+  persistLabDB(lab);
+}
+
+// ═══════════════════════════════════════════
+// SCAN
+// ═══════════════════════════════════════════
+function openScanView(){
+  const lab=S.labs.find(l=>l.id===S.currentLabId);
+  if(!lab||lab.db.length===0){toast('Carga el Excel de Patrimonio primero','⚠️');return;}
+  document.getElementById('scanLabTitle').textContent='📷 Verificación: '+lab.name;
+  document.getElementById('scanLabSub').textContent=lab.id+' · '+S.confirmed.filter(c=>c.labId===lab.id).length+' verificados de '+lab.totalEquip;
+  document.getElementById('scanInput').value='';
+  hideResults();
+  renderSessionList();
+  goPage('scan');
+}
+
+let camActive=false,camStream=null,zxingReader=null,nativeLoop=null,scanCooldown=false;
+async function toggleCam(){
+  if(camActive){stopCam();return;}
+  const lab=S.labs.find(l=>l.id===S.currentLabId);
+  if(!lab||lab.db.length===0){toast('Selecciona un laboratorio con lista cargada','⚠️');return;}
+  const panel=document.getElementById('camPanel'),video=document.getElementById('camVideo'),status=document.getElementById('camStatus');
+  panel.classList.add('open');camActive=true;status.textContent='Iniciando cámara…';
+  document.getElementById('camBtn').textContent='✕';
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
+    video.srcObject=camStream;await video.play();
+    status.textContent='Apunta al código de barras del equipo';
+    if('BarcodeDetector' in window){
+      const det=new BarcodeDetector({formats:['code_128','code_39','ean_13','ean_8','upc_a','itf','qr_code']});
+      const loop=async()=>{if(!camActive)return;if(!scanCooldown&&video.readyState===video.HAVE_ENOUGH_DATA){try{const b=await det.detect(video);if(b.length>0)onCodeDetected(b[0].rawValue);}catch(e){}}nativeLoop=requestAnimationFrame(loop);};
+      nativeLoop=requestAnimationFrame(loop);
+    } else if(typeof ZXing!=='undefined'){
+      status.textContent='Modo compatibilidad — apunta al código…';
+      zxingReader=new ZXing.BrowserBarcodeReader(300);
+      zxingReader.decodeFromStream(camStream,video,(result,err)=>{if(result&&!scanCooldown)onCodeDetected(result.getText());});
+    } else {
+      stopCam();toast('Ingresa el código manualmente','ℹ️');
+    }
+  }catch(e){
+    stopCam();
+    toast(e.name==='NotAllowedError'?'Permiso de cámara denegado — revisa ajustes del navegador':'Error de cámara: '+e.message,'❌');
+  }
+}
+function onCodeDetected(raw){
+  if(scanCooldown)return;scanCooldown=true;
+  const code=raw.trim().toUpperCase();
+  document.getElementById('camStatus').textContent='✅ Leído: '+code;
+  const panel=document.getElementById('camPanel');
+  panel.style.outline='3px solid var(--green)';
+  setTimeout(()=>panel.style.outline='',400);
+  document.getElementById('scanInput').value=code;
+  setTimeout(()=>{stopCam();doScan();scanCooldown=false;},500);
+}
+function stopCam(){
+  camActive=false;scanCooldown=false;
+  if(nativeLoop){cancelAnimationFrame(nativeLoop);nativeLoop=null;}
+  if(zxingReader){try{zxingReader.reset();}catch(e){}zxingReader=null;}
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  const v=document.getElementById('camVideo');if(v) v.srcObject=null;
+  document.getElementById('camPanel').classList.remove('open');
+  document.getElementById('camBtn').textContent='📷';
+}
+
+function doScan(){
+  const lab=S.labs.find(l=>l.id===S.currentLabId);
+  if(!lab){toast('Selecciona un laboratorio','⚠️');return;}
+  if(lab.db.length===0){toast('Carga el Excel primero','⚠️');return;}
+  const raw=document.getElementById('scanInput').value.trim().toUpperCase();
+  if(!raw){toast('Ingresa un código','⚠️');return;}
+  hideResults();
+  const pat=lab.db.find(e=>e.code===raw);
+  if(!pat){
+    S.currentScan={code:raw,fromPat:null,diffs:[]};
+    showMiss(raw);
+    return;
+  }
+  if(S.confirmed.find(e=>e.code===raw&&e.labId===S.currentLabId)){
+    toast('Este equipo ya fue verificado ✔','ℹ️');
+    document.getElementById('scanInput').value='';
+    return;
+  }
+  S.currentScan={code:raw,fromPat:pat,diffs:[]};
+  showOk(pat);
+}
+
+function showOk(pat){
+  document.getElementById('rOk').innerHTML=`
+    <div class="rh"><span class="ri">✅</span>
+      <div><div class="rt ok">Equipo encontrado</div><div class="rsub ok">Código coincide con Patrimonio</div></div>
+      <span class="badge bg-ok" style="margin-left:auto">● ENCONTRADO</span>
+    </div>
+    <div class="rgrid">
+      <div class="rf"><label>Código</label><span>${pat.code}</span></div>
+      <div class="rf"><label>Descripción</label><span>${pat.desc}</span></div>
+      <div class="rf"><label>Estado Patrimonio</label><span>${pat.status}</span></div>
+      <div class="rf"><label>Área</label><span>${pat.area}</span></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ok" onclick="openScanConfirm()">✔ Confirmar verificación</button>
+      <button class="btn btn-danger" onclick="openTktModal()">🎫 Crear ticket</button>
+      <button class="btn btn-ghost" onclick="hideResults()">Cancelar</button>
+    </div>`;
+  document.getElementById('rOk').classList.add('show');
+}
+
+function showMiss(code){
+  document.getElementById('rMiss').innerHTML=`
+    <div class="rh"><span class="ri">❓</span>
+      <div><div class="rt miss">Código no encontrado</div><div class="rsub miss">No existe en el registro de Patrimonio</div></div>
+    </div>
+    <div style="font-size:14px;font-weight:600;padding:9px;background:#fff;border-radius:8px;margin-bottom:10px;font-family:monospace;">${code}</div>
+    <div class="btn-row">
+      <button class="btn btn-danger" onclick="openTktModalMiss()">🎫 Reportar</button>
+      <button class="btn btn-ghost" onclick="hideResults()">Cancelar</button>
+    </div>`;
+  document.getElementById('rMiss').classList.add('show');
+}
+
+function hideResults(){
+  ['rOk','rWarn','rMiss'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('show');el.innerHTML='';}});
+}
+
+function openScanConfirm(){
+  const pat=S.currentScan?.fromPat;
+  if(!pat) return;
+  document.getElementById('mSCTitle').textContent='Verificar: '+pat.code;
+  document.getElementById('mSCDesc').textContent=pat.desc;
+  document.getElementById('mSCStatus').value=pat.status||'ÓPTIMO';
+  document.getElementById('mSCObs').value='';
+  document.getElementById('mScanConfirm').classList.add('open');
+}
+
+function confirmScan(){
+  const s=S.currentScan;
+  const lab=S.labs.find(l=>l.id===S.currentLabId);
+  const physStatus=document.getElementById('mSCStatus').value;
+  const obs=document.getElementById('mSCObs').value.trim();
+  // Update status in db if different
+  const dbItem=lab.db.find(e=>e.code===s.code);
+  if(dbItem){ dbItem.verifiedStatus=physStatus; dbItem.verifiedObs=obs; }
+  const item={
+    ...s.fromPat,
+    labId:S.currentLabId,
+    labName:lab.name,
+    status:physStatus,
+    obs,
+    timestamp:new Date().toLocaleString('es-PE'),
+  };
+  S.confirmed.push(item);
+  lab.verified=S.confirmed.filter(c=>c.labId===lab.id).length;
+  closeM('mScanConfirm');
+  hideResults();
+  document.getElementById('scanInput').value='';
+  renderSessionList();
+  // Update scan sub
+  document.getElementById('scanLabSub').textContent=lab.id+' · '+lab.verified+' verificados de '+lab.totalEquip;
+  toast('Equipo '+s.code+' confirmado ✔','✅');
+  // Mark as pending-save so sync knows data may not be in Sheets yet
+  item._saving=true;
+  persistItem(item).then(()=>{item._saving=false;}).catch(()=>{item._saving=false;});
+  persistLab(lab);
+  // Refresh lab detail table immediately if visible
+  lab._tableNeedsRefresh=true;
+  if(document.getElementById('page-labdetail').classList.contains('on')){
+    renderLabTable();
+    renderLabDetail();
+  }
+  updateC7Progress();
+}
+
+function renderSessionList(){
+  const labId=S.currentLabId;
+  const items=S.confirmed.filter(c=>c.labId===labId);
+  document.getElementById('sessionCount').textContent=items.length;
+  const stC={'ÓPTIMO':'#DCFCE7','EN MANTENIMIENTO':'#FEF3C7','EN REPARACIÓN':'#DBEAFE','DE BAJA':'#FEE2E2'};
+  document.getElementById('sessionList').innerHTML=items.length===0?'Sin verificaciones aún':
+    items.slice().reverse().map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
+      <span style="font-family:monospace;font-size:12px;">${c.code}</span>
+      <span style="font-size:12px;flex:1;">${c.desc||''}</span>
+      <span style="background:${stC[c.status]||'#f5f5f5'};padding:2px 7px;border-radius:8px;font-size:11px;font-weight:600;">${c.status}</span>
+      <span style="font-size:11px;color:var(--gray);">${c.timestamp}</span>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════
+// TICKETS
+// ═══════════════════════════════════════════
+function openTktModal(){
+  S.currentTktCode=S.currentScan.code;
+  document.getElementById('tDesc').value='';
+  document.getElementById('mTicket').classList.add('open');
+}
+function openTktModalMiss(){
+  S.currentTktCode=S.currentScan.code;
+  document.getElementById('tDesc').value='Equipo encontrado físicamente pero no registrado en Patrimonio.';
+  document.getElementById('tType').value='no_registrado';
+  document.getElementById('mTicket').classList.add('open');
+}
+
+function createTicket(){
+  const lab=S.labs.find(l=>l.id===S.currentLabId);
+  // Prevent duplicate: check if open ticket already exists for this code in this lab
+  const existing=S.tickets.find(t=>t.labId===S.currentLabId&&t.code===S.currentTktCode&&t.status!=='resolved');
+  if(existing){toast('Ya existe un ticket abierto para este equipo','⚠️');closeM('mTicket');return;}
+  const tkt={
+    id:'TKT-'+String(S.tktCounter++).padStart(3,'0'),
+    labId:S.currentLabId, labName:lab?.name||'—',
+    code:S.currentTktCode,
+    type:document.getElementById('tType').value,
+    desc:document.getElementById('tDesc').value||'Sin descripción',
+    action:document.getElementById('tAction').value,
+    status:'open',
+    createdBy:'Jefe de Laboratorio',
+    createdAt:new Date().toLocaleString('es-PE'),
+    diffs:S.currentScan?.diffs||[],
+    timeline:[{time:new Date().toLocaleString('es-PE'),actor:'Jefe de Laboratorio',msg:'Ticket creado',type:'open'}],
+  };
+  S.tickets.push(tkt);
+  if(lab) lab.openTickets=S.tickets.filter(t=>t.labId===lab.id&&t.status==='open').length;
+  // Also mark as confirmed with ticket
+  if(!S.confirmed.find(c=>c.code===S.currentTktCode&&c.labId===S.currentLabId)){
+    const pat=lab?.db.find(e=>e.code===S.currentTktCode)||{code:S.currentTktCode,desc:S.currentTktCode};
+    const item={...pat,labId:S.currentLabId,labName:lab?.name||'—',status:pat.status||'—',timestamp:new Date().toLocaleString('es-PE')};
+    S.confirmed.push(item);
+    if(lab) lab.verified=S.confirmed.filter(c=>c.labId===lab.id).length;
+    persistItem(item);
+  }
+  closeM('mTicket');
+  hideResults();
+  document.getElementById('scanInput').value='';
+  renderSessionList();
+  updateSelects();
+  updateNBadge();
+  toast('Ticket '+tkt.id+' creado 📤','🎫');
+  persistTicket(tkt);
+  if(lab) persistLab(lab);
+}
+
+function openResolveM(id){
+  S.resolvingId=id;
+  const t=S.tickets.find(t=>t.id===id);
+  document.getElementById('mResTitle').textContent='Resolver '+t.id;
+  document.getElementById('mResDesc').textContent='Código: '+t.code+' · Lab: '+(t.labName||t.labId);
+  document.getElementById('rComment').value='';
+  document.getElementById('mResolve').classList.add('open');
+}
+
+function resolveTicket(){
+  const t=S.tickets.find(t=>t.id===S.resolvingId);
+  t.status='resolved';
+  t.resolvedAt=new Date().toLocaleString('es-PE');
+  t.resolvedBy='Patrimonio';
+  t.timeline.push({time:t.resolvedAt,actor:'Patrimonio',msg:'Cerrado: '+(document.getElementById('rComment').value||document.getElementById('rAction').options[document.getElementById('rAction').selectedIndex].text),type:'resolved'});
+  const lab=S.labs.find(l=>l.id===t.labId);
+  if(lab){lab.openTickets=S.tickets.filter(t2=>t2.labId===lab.id&&t2.status==='open').length;}
+  closeM('mResolve');
+  renderTickets();
+  updateNBadge();
+  updateC7Progress();
+  if(document.getElementById('page-labdetail').classList.contains('on')) renderLabTable();
+  toast('Ticket '+t.id+' cerrado ✔','✅');
+  updateTicketInSheets(t);
+  if(lab) persistHistory(lab);
+}
+
+function pendTicket(){
+  const t=S.tickets.find(t=>t.id===S.resolvingId);
+  t.status='pending';
+  t.timeline.push({time:new Date().toLocaleString('es-PE'),actor:'Patrimonio',msg:'Marcado en revisión: '+(document.getElementById('rComment').value||'En proceso'),type:'pending'});
+  const lab=S.labs.find(l=>l.id===t.labId);
+  if(lab) lab.pendingTickets=S.tickets.filter(t2=>t2.labId===lab.id&&t2.status==='pending').length;
+  closeM('mResolve');
+  renderTickets();
+  updateNBadge();
+  toast('Ticket en revisión ⏳','⏳');
+  updateTicketInSheets(t);
+}
+
+function toggleTktBody(id){document.getElementById('tb-'+id)?.classList.toggle('open');}
+
+function renderTickets(){
+  const q=(document.getElementById('tktSearch')?.value||'').toLowerCase();
+  const lf=document.getElementById('tktLabFilter')?.value||'all';
+  const openCount=S.tickets.filter(t=>t.status==='open').length;
+  const pendCount=S.tickets.filter(t=>t.status==='pending').length;
+  const resCount=S.tickets.filter(t=>t.status==='resolved').length;
+  document.getElementById('tktStats').innerHTML=`
+    <div class="sc r"><div class="sn">${openCount}</div><div class="sl">Abiertos</div></div>
+    <div class="sc a"><div class="sn">${pendCount}</div><div class="sl">En revisi\u00f3n</div></div>
+    <div class="sc g"><div class="sn">${resCount}</div><div class="sl">Resueltos</div></div>
+    <div class="sc b"><div class="sn">${S.tickets.length}</div><div class="sl">Total</div></div>`;
+  let tkts=S.tickets;
+  if(q) tkts=tkts.filter(t=>t.code.toLowerCase().includes(q)||(t.labName||'').toLowerCase().includes(q)||(t.id||'').toLowerCase().includes(q));
+  if(lf!=='all') tkts=tkts.filter(t=>t.labId===lf);
+  const typeClass={datos_incorrectos:'k-type-datos',no_registrado:'k-type-noreg',no_encontrado:'k-type-noenc',codigo_errado:'k-type-cod',estado_diferente:'k-type-est',otro:'k-type-otro'};
+  const typeLabel={datos_incorrectos:'Datos incorrectos',no_registrado:'No registrado',no_encontrado:'No encontrado',codigo_errado:'C\u00f3digo errado',estado_diferente:'Estado diferente',otro:'Otro'};
+  function buildCard(t){
+    const tc=typeClass[t.type]||'k-type-otro';
+    const tl=typeLabel[t.type]||t.type;
+    const actionBtn=t.status!=='resolved'
+      ?`<button class="btn btn-amber" style="font-size:11px;padding:5px 10px;flex:1;" onclick="openResolveM('${t.id}')">⚡ Gestionar</button>`
+      :`<span style="font-size:11px;color:#15803D;font-weight:600;display:flex;align-items:center;gap:4px;">✔ ${t.resolvedBy||'Patrimonio'}</span>`;
+    return `<div class="k-card" id="tkt-${t.id}">
+      <div class="k-card-header">
+        <span class="k-card-id">${t.id}</span>
+        <button class="btn btn-ghost" style="font-size:11px;padding:3px 7px;line-height:1;" onclick="showKanbanDetail('${t.id}')" title="Ver detalle">📋</button>
+      </div>
+      <div class="k-card-code">${t.code}</div>
+      <div class="k-card-lab">🏫 ${t.labName||t.labId}</div>
+      <span class="k-card-type ${tc}">${tl}</span>
+      <div class="k-card-desc">${t.desc}</div>
+      <div class="k-card-date">📅 ${t.createdAt||''}${t.resolvedAt?' → '+t.resolvedAt:''}</div>
+      <div class="k-card-actions">${actionBtn}</div>
+    </div>`;
+  }
+  ['open','pending','resolved'].forEach(status=>{
+    const col=tkts.filter(t=>t.status===status);
+    document.getElementById('kcount-'+status).textContent=col.length;
+    const emptyMsg={open:'Sin incidencias abiertas',pending:'Nada en revisión',resolved:'Sin tickets resueltos'};
+    const emptyIcon={open:'🎉',pending:'⏳',resolved:'✅'};
+    document.getElementById('kcards-'+status).innerHTML=
+      col.length===0
+        ?`<div class="k-empty"><span class="k-empty-icon">${emptyIcon[status]}</span>${emptyMsg[status]}</div>`
+        :col.map(buildCard).join('');
+  });
+}
+
+function showKanbanDetail(id){
+  const t=S.tickets.find(t=>t.id===id);
+  if(!t) return;
+  S._tktDetailId=id;
+  document.getElementById('mTDTitle').textContent='&#x1F3AB; '+t.id;
+  const stLabel={open:'&#x1F534; Abierto',pending:'&#x1F7E1; En revisi\u00f3n',resolved:'&#x1F7E2; Resuelto'};
+  document.getElementById('mTDBody').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;margin-bottom:12px;">
+      <div><label style="font-size:11px;color:var(--gray);">Estado</label><div>${stLabel[t.status]||t.status}</div></div>
+      <div><label style="font-size:11px;color:var(--gray);">C\u00f3digo</label><div style="font-family:monospace;">${t.code}</div></div>
+      <div><label style="font-size:11px;color:var(--gray);">Tipo</label><div>${t.type}</div></div>
+      <div><label style="font-size:11px;color:var(--gray);">Creado por</label><div>${t.createdBy}</div></div>
+    </div>
+    <div style="font-size:13px;margin-bottom:8px;"><label style="font-size:11px;color:var(--gray);">Descripci\u00f3n</label><div>${t.desc}</div></div>
+    <div class="tkt-timeline">${(t.timeline||[]).map(tl=>`<div class="tl-item"><div class="tl-dot dot-${tl.type}"></div><div><strong>${tl.actor}</strong> \u00b7 ${tl.time}<br>${tl.msg}</div></div>`).join('')}</div>
+    ${t.status!=='resolved'?`<div class="btn-row" style="margin-top:10px;"><button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="closeM('mTktDetail');openResolveM('${t.id}')">&#x2714; Resolver</button></div>`:''}`;
+  document.getElementById('mTktDetail').classList.add('open');
+}
+
+// ═══════════════════════════════════════════
+// INVENTORY
+// ═══════════════════════════════════════════
+function renderInventory(){
+  const q=(document.getElementById('invSearch')?.value||'').toLowerCase();
+  const lf=document.getElementById('invLabFilter')?.value||'all';
+  const sf=document.getElementById('invStateFilter')?.value||'all';
+  let items=S.confirmed;
+  if(q) items=items.filter(i=>i.code.toLowerCase().includes(q)||(i.desc||'').toLowerCase().includes(q));
+  if(lf!=='all') items=items.filter(i=>i.labId===lf);
+  if(sf!=='all') items=items.filter(i=>i.status===sf);
+  const stC={'ÓPTIMO':'#DCFCE7','EN MANTENIMIENTO':'#FEF3C7','EN REPARACIÓN':'#DBEAFE','DE BAJA':'#FEE2E2'};
+  document.getElementById('invBody').innerHTML=items.length===0
+    ?'<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--gray);">Sin equipos verificados</td></tr>'
+    :items.map((e,i)=>`<tr>
+      <td style="color:var(--gray);font-size:11px;">${i+1}</td>
+      <td style="font-family:monospace;font-size:12px;">${e.code}</td>
+      <td>${e.desc||'—'}</td>
+      <td><span style="background:${stC[e.status]||'#f5f5f5'};padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;">${e.status||'—'}</span></td>
+      <td style="font-size:12px;">${e.area||'—'}</td>
+      <td style="font-size:12px;">${e.labName||e.labId||'—'}</td>
+      <td style="font-size:11px;color:var(--gray);">${e.timestamp||'—'}</td>
+    </tr>`).join('');
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════
+let chartInstances={};
+function renderDashboard(){
+  const totalLabs=S.labs.length;
+  const completedLabs=S.labs.filter(l=>l.verified>=l.totalEquip&&l.totalEquip>0&&S.tickets.filter(t=>t.labId===l.id&&t.status!=='resolved').length===0).length;
+  const openTkts=S.tickets.filter(t=>t.status==='open').length;
+  const pendTkts=S.tickets.filter(t=>t.status==='pending').length;
+  const resTkts=S.tickets.filter(t=>t.status==='resolved').length;
+  document.getElementById('dashKpis').innerHTML=`
+    <div class="sc b"><div class="sn">${totalLabs}</div><div class="sl">Laboratorios</div></div>
+    <div class="sc g"><div class="sn">${completedLabs}</div><div class="sl">Completados</div></div>
+    <div class="sc r"><div class="sn">${openTkts}</div><div class="sl">Tickets abiertos</div></div>
+    <div class="sc a"><div class="sn">${pendTkts}</div><div class="sl">En revisión</div></div>
+    <div class="sc g"><div class="sn">${resTkts}</div><div class="sl">Tickets resueltos</div></div>
+    <div class="sc p"><div class="sn">${S.tickets.length}</div><div class="sl">Total tickets</div></div>`;
+  const donutCtx=document.getElementById('chartDonut').getContext('2d');
+  if(chartInstances.donut) chartInstances.donut.destroy();
+  chartInstances.donut=new Chart(donutCtx,{type:'doughnut',data:{labels:['Abiertos','En revisión','Resueltos'],datasets:[{data:[openTkts,pendTkts,resTkts],backgroundColor:['#EF4444','#F59E0B','#22C55E']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}}}});
+  const typeLabels={datos_incorrectos:'Datos incorrectos',no_registrado:'No registrado',no_encontrado:'No encontrado',codigo_errado:'Código errado',estado_diferente:'Estado diferente',otro:'Otro'};
+  const typeCounts={};
+  S.tickets.forEach(t=>{typeCounts[t.type]=(typeCounts[t.type]||0)+1;});
+  const barCtx=document.getElementById('chartBar').getContext('2d');
+  if(chartInstances.bar) chartInstances.bar.destroy();
+  chartInstances.bar=new Chart(barCtx,{type:'bar',data:{labels:Object.keys(typeCounts).map(k=>typeLabels[k]||k),datasets:[{data:Object.values(typeCounts),backgroundColor:'#3D6B4F'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  const stC={'ÓPTIMO':'#DCFCE7','EN MANTENIMIENTO':'#FEF3C7','EN REPARACIÓN':'#DBEAFE','DE BAJA':'#FEE2E2'};
+  document.getElementById('dashLabTable').innerHTML=`<div class="tbl-wrap"><table>
+    <thead><tr><th>Laboratorio</th><th>Equipos</th><th>Verificados</th><th>Progreso</th><th>Tickets</th></tr></thead>
+    <tbody>${S.labs.map(l=>{
+      const conf=S.confirmed.filter(c=>c.labId===l.id).length;
+      const pct=l.totalEquip>0?Math.round(conf/l.totalEquip*100):0;
+      const opT=S.tickets.filter(t=>t.labId===l.id&&t.status==='open').length;
+      return `<tr><td>${l.icon||'🔬'} ${l.name}</td><td>${l.totalEquip}</td><td>${conf}</td>
+        <td><div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:6px;background:var(--border);border-radius:3px;"><div style="width:${pct}%;height:100%;background:var(--green);border-radius:3px;"></div></div><span style="font-size:11px;">${pct}%</span></div></td>
+        <td>${opT>0?`<span class="badge bg-red">${opT} abiertos</span>`:'<span class="badge bg-ok">OK</span>'}</td></tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+// ═══════════════════════════════════════════
+// REPORTS
+// ═══════════════════════════════════════════
+function reportAvance(){
+  const wb=XLSX.utils.book_new();
+  const data=[['Código','Nombre','Facultad','Dpto. Académico','Responsable','Total Equipos','Verificados','% Avance','Tickets Abiertos','Tickets Resueltos','Estado']];
+  S.labs.forEach(l=>{
+    const conf=S.confirmed.filter(c=>c.labId===l.id).length;
+    const pct=l.totalEquip>0?Math.round(conf/l.totalEquip*100):0;
+    const opT=S.tickets.filter(t=>t.labId===l.id&&t.status==='open').length;
+    const resT=S.tickets.filter(t=>t.labId===l.id&&t.status==='resolved').length;
+    const estado=pct===100&&opT===0?'Completo':pct>0?'En proceso':'Sin iniciar';
+    data.push([l.id,l.name,l.facultad||'Agronomía',l.dpto||'—',l.responsible||'—',l.totalEquip,conf,pct+'%',opT,resT,estado]);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb,ws,'Avance');
+  XLSX.writeFile(wb,'Reporte_Avance_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  toast('Reporte descargado','📊');
+}
+
+function reportLabs(){
+  const wb=XLSX.utils.book_new();
+  const data=[['Código','Nombre del laboratorio','Facultad','Dpto. Académico','Jefe de laboratorio','Ícono','Áreas','Total Equipos']];
+  S.labs.forEach(l=>{
+    data.push([l.id,l.name,l.facultad||'Agronomía',l.dpto||'—',l.responsible||'—',l.icon||'🔬',(l.areas||[]).join(', '),l.totalEquip]);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb,ws,'Laboratorios');
+  XLSX.writeFile(wb,'Informacion_Laboratorios_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  toast('Reporte descargado','🏫');
+}
+
+function reportTickets(){
+  const wb=XLSX.utils.book_new();
+  const data=[['ID','Laboratorio','Código Equipo','Tipo','Descripción','Acción','Estado','Creado por','Fecha creación','Resuelto por','Fecha resolución']];
+  S.tickets.forEach(t=>{
+    data.push([t.id,t.labName||t.labId,t.code,t.type,t.desc,t.action,t.status,t.createdBy,t.createdAt,t.resolvedBy||'—',t.resolvedAt||'—']);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb,ws,'Tickets');
+  XLSX.writeFile(wb,'Reporte_Tickets_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  toast('Reporte descargado','🎫');
+}
+
+function reportInventory(){
+  const wb=XLSX.utils.book_new();
+  const data=[['N°','Código Inventario','Descripción','Estado verificado','Área','Laboratorio','Fecha verificación']];
+  S.confirmed.forEach((e,i)=>{
+    data.push([i+1,e.code,e.desc||'—',e.status||'—',e.area||'—',e.labName||e.labId||'—',e.timestamp||'—']);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb,ws,'Inventario');
+  XLSX.writeFile(wb,'Inventario_Verificado_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  toast('Reporte descargado','📋');
+}
+
+// ═══════════════════════════════════════════
+// EXPORT C7 EXCEL (formato SUNEDU)
+// ═══════════════════════════════════════════
+function exportC7Excel(){
+  const lab=S.labs.find(l=>l.id===S.currentLabId);
+  if(!lab||!lab.db) return;
+  const wb=XLSX.utils.book_new();
+  const ws={};
+  // Header rows replicating SUNEDU format
+  const merge=[];
+  ws['A2']={v:'ANEXO N° 20\nSUPERINTENDENCIA NACIONAL DE EDUCACIÓN SUPERIOR UNIVERSITARIA\nFORMATO DE LICENCIAMIENTO C\nEQUIPOS DE LABORATORIOS Y TALLERES DE ENSEÑANZA',t:'s'};
+  ws['H2']={v:'APLICA/NO APLICA *',t:'s'};
+  ws['H3']={v:'C7',t:'s'};
+  ws['A4']={v:'NOMBRE DE LA UNIVERSIDAD',t:'s'};
+  ws['B4']={v:'UNIVERSIDAD NACIONAL AGRARIA LA MOLINA',t:'s'};
+  ws['A5']={v:'CODIGO DE LABORATORIO O TALLER (1)',t:'s'};
+  ws['B5']={v:lab.id+' - '+lab.name.toUpperCase(),t:'s'};
+  ws['A6']={v:'N° DE EQUIPOS\n(2)',t:'s'};
+  ws['B6']={v:'NOMBRE DEL EQUIPO\n(3)',t:'s'};
+  ws['C6']={v:'COMENTARIOS (4)',t:'s'};
+  ws['C7']={v:'Código (patrimonial)',t:'s'};
+  ws['D7']={v:'Estado de Operatividad',t:'s'};
+  ws['H7']={v:'Fecha de último mantenimiento',t:'s'};
+  ws['I7']={v:'Observaciones (ubicación del equipo)',t:'s'};
+  ws['D8']={v:'Operativo',t:'s'};
+  ws['E8']={v:'En mantenimiento',t:'s'};
+  ws['F8']={v:'En reparación',t:'s'};
+  ws['G8']={v:'Dado de baja',t:'s'};
+  // Data rows
+  const conf=S.confirmed.filter(c=>c.labId===lab.id);
+  lab.db.forEach((e,i)=>{
+    const row=9+i;
+    const verif=conf.find(c=>c.code===e.code);
+    const physStatus=verif?verif.status:e.status;
+    ws['A'+row]={v:i+1,t:'n'};
+    ws['B'+row]={v:e.desc,t:'s'};
+    ws['C'+row]={v:e.code,t:'s'};
+    ws['D'+row]={v:physStatus==='ÓPTIMO'?'X':'',t:'s'};
+    ws['E'+row]={v:physStatus==='EN MANTENIMIENTO'?'X':'',t:'s'};
+    ws['F'+row]={v:physStatus==='EN REPARACIÓN'?'X':'',t:'s'};
+    ws['G'+row]={v:physStatus==='DE BAJA'?'X':'',t:'s'};
+    ws['H'+row]={v:e.fechaMant||'',t:'s'};
+    ws['I'+row]={v:(e.area!=='—'?e.area+' - ':'')+e.obs,t:'s'};
+  });
+  ws['!ref']='A1:L'+(9+lab.db.length);
+  ws['!merges']=[
+    {s:{r:1,c:0},e:{r:2,c:6}},{s:{r:1,c:7},e:{r:1,c:11}},
+    {s:{r:3,c:1},e:{r:3,c:8}},{s:{r:4,c:1},e:{r:4,c:8}},
+    {s:{r:5,c:0},e:{r:7,c:0}},{s:{r:5,c:1},e:{r:7,c:1}},
+    {s:{r:5,c:2},e:{r:5,c:8}},{s:{r:6,c:2},e:{r:7,c:2}},
+    {s:{r:6,c:3},e:{r:6,c:6}},{s:{r:6,c:7},e:{r:7,c:7}},
+    {s:{r:6,c:8},e:{r:7,c:8}},
+  ];
+  XLSX.utils.book_append_sheet(wb,ws,lab.id.substring(0,31));
+  XLSX.writeFile(wb,'C7_'+lab.id+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  toast('C7 exportado ✔','📄');
+}
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function closeM(id){document.getElementById(id)?.classList.remove('open');}
+
+function updateSelects(){
+  const labOpts=S.labs.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+  ['tktLabFilter','invLabFilter'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){const cur=el.value;el.innerHTML='<option value="all">Todos los labs</option>'+labOpts;el.value=cur;}
+  });
+}
+
+function updateNBadge(){
+  const n=S.tickets.filter(t=>t.status==='open').length;
+  const nb=document.getElementById('nb');
+  if(nb){nb.textContent=n;nb.style.display=n>0?'inline':'none';}
+}
+
+let _tt;
+function toast(msg,icon='ℹ️'){
+  const el=document.getElementById('toast');
+  document.getElementById('tMsg').textContent=msg;
+  document.getElementById('tIcon').textContent=icon;
+  el.classList.add('show');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+// ═══════════════════════════════════════════
+// GOOGLE SHEETS API LAYER
+// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// FIREBASE CONFIG
+// ═══════════════════════════════════════════
+const FB = {
+  projectId: 'c7lab-unalm',
+  apiKey:     'AIzaSyAhqfh2UIXwBCvavdZFSVgI19OMKMyUJuo',
+  base:       'https://firestore.googleapis.com/v1/projects/c7lab-unalm/databases/(default)/documents',
+};
+
+// Apps Script URL — solo para sync a Sheets en segundo plano
+const SHEETS_URL = '';  // ← Pega aquí la URL de tu Apps Script (opcional)
+
+// ── FIRESTORE REST HELPERS ───────────────────────────────────
+function fbVal(v){
+  if(v===null||v===undefined) return {nullValue:null};
+  if(typeof v==='boolean') return {booleanValue:v};
+  if(typeof v==='number') return {integerValue:String(v)};
+  if(typeof v==='string') return {stringValue:v};
+  if(Array.isArray(v)) return {arrayValue:{values:v.map(fbVal)}};
+  if(typeof v==='object') return {mapValue:{fields:Object.fromEntries(Object.entries(v).map(([k,val])=>[k,fbVal(val)]))}};
+  return {stringValue:String(v)};
+}
+
+function fbParse(fields){
+  if(!fields) return {};
+  const out={};
+  for(const [k,v] of Object.entries(fields)){
+    if('stringValue' in v) out[k]=v.stringValue;
+    else if('integerValue' in v) out[k]=Number(v.integerValue);
+    else if('doubleValue' in v) out[k]=v.doubleValue;
+    else if('booleanValue' in v) out[k]=v.booleanValue;
+    else if('nullValue' in v) out[k]=null;
+    else if('arrayValue' in v) out[k]=(v.arrayValue.values||[]).map(i=>fbParse(i.mapValue?.fields||{'_':i})['_']??fbParseSingle(i));
+    else if('mapValue' in v) out[k]=fbParse(v.mapValue.fields||{});
+    else out[k]=null;
+  }
+  return out;
+}
+
+function fbParseSingle(v){
+  if(!v) return null;
+  if('stringValue' in v) return v.stringValue;
+  if('integerValue' in v) return Number(v.integerValue);
+  if('booleanValue' in v) return v.booleanValue;
+  if('nullValue' in v) return null;
+  return null;
+}
+
+async function fbGet(collection, docId){
+  const url=`${FB.base}/${collection}/${encodeURIComponent(docId)}?key=${FB.apiKey}`;
+  const r=await fetch(url);
+  if(!r.ok) return null;
+  const d=await r.json();
+  return d.fields ? {id:docId,...fbParse(d.fields)} : null;
+}
+
+async function fbSet(collection, docId, data){
+  const fields=Object.fromEntries(Object.entries(data).map(([k,v])=>[k,fbVal(v)]));
+  const url=`${FB.base}/${collection}/${encodeURIComponent(docId)}?key=${FB.apiKey}`;
+  const r=await fetch(url,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields})});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Firebase write error');}
+  return await r.json();
+}
+
+async function fbDelete(collection, docId){
+  const url=`${FB.base}/${collection}/${encodeURIComponent(docId)}?key=${FB.apiKey}`;
+  await fetch(url,{method:'DELETE'});
+}
+
+async function fbQuery(collection, filters=[], orderBy=null){
+  const url=`https://firestore.googleapis.com/v1/projects/${FB.projectId}/databases/(default)/documents:runQuery?key=${FB.apiKey}`;
+  const query={structuredQuery:{from:[{collectionId:collection}]}};
+  if(filters.length>0){
+    query.structuredQuery.where=filters.length===1?filters[0]:{compositeFilter:{op:'AND',filters}};
+  }
+  if(orderBy) query.structuredQuery.orderBy=[{field:{fieldPath:orderBy},direction:'ASCENDING'}];
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(query)});
+  if(!r.ok) return [];
+  const rows=await r.json();
+  return rows.filter(row=>row.document).map(row=>({
+    id:row.document.name.split('/').pop(),
+    ...fbParse(row.document.fields)
+  }));
+}
+
+function fbFilter(field, op, value){
+  const opMap={'===':'EQUAL','!==':'NOT_EQUAL','<':'LESS_THAN','<=':'LESS_THAN_OR_EQUAL','>':'GREATER_THAN','>=':'GREATER_THAN_OR_EQUAL'};
+  return {fieldFilter:{field:{fieldPath:field},op:opMap[op]||op,value:fbVal(value)}};
+}
+
+async function fbList(collection){
+  const url=`${FB.base}/${collection}?key=${FB.apiKey}&pageSize=1000`;
+  const r=await fetch(url);
+  if(!r.ok) return [];
+  const d=await r.json();
+  return (d.documents||[]).map(doc=>({
+    id:doc.name.split('/').pop(),
+    ...fbParse(doc.fields)
+  }));
+}
+
+async function fbDeleteByField(collection, field, value){
+  const docs=await fbQuery(collection,[fbFilter(field,'===',String(value))]);
+  await Promise.all(docs.map(d=>fbDelete(collection,d.id)));
+  return docs.length;
+}
+
+// ── SHEETS SYNC (segundo plano, no bloquea UI) ───────────────
+function syncToSheets(action, data){
+  if(!SHEETS_URL) return;
+  const params=new URLSearchParams({action,data:JSON.stringify(data),_t:Date.now()});
+  const url=`${SHEETS_URL}?${params.toString()}`;
+  const cbName='_scb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  window[cbName]=()=>{delete window[cbName];document.getElementById(cbName)?.remove();};
+  const script=document.createElement('script');
+  script.id=cbName;
+  script.src=url+'&callback='+cbName;
+  script.onerror=()=>{delete window[cbName];script.remove();};
+  document.head.appendChild(script);
+  setTimeout(()=>{delete window[cbName];document.getElementById(cbName)?.remove();},15000);
+}
+
+// ═══════════════════════════════════════════
+// DATA LAYER — Firebase
+// ═══════════════════════════════════════════
+async function loadFromSheets(){
+  setLoading(true);
+  try{
+    // Load labs, tickets, inventory in parallel
+    const periodo=currentPeriod();
+    const [labs, tickets, inventory] = await Promise.all([
+      fbList('labs'),
+      fbList('tickets'),
+      fbQuery('inventory',[fbFilter('periodo','===',periodo)]),
+    ]);
+
+    // Parse labs
+    S.labs=labs.map(r=>{
+      const existing=S.labs.find(l=>l.id===r.id);
+      return {
+        id:r.id, name:r.nombre, area:r.area||'—',
+        facultad:r.facultad||'Agronomía', dpto:r.dpto||'—',
+        responsible:r.responsable, icon:r.icono||'🔬',
+        color:r.color||'#EEF4FF',
+        areas:safeJson(r.areas,[]),
+        totalEquip:Number(r.totalEquipos)||0,
+        verified:Number(r.verificados)||0,
+        period:r.periodo||periodo,
+        subAreas:[], db:existing?.db||[],
+        openTickets:0, pendingTickets:0, resolvedTickets:0, history:[],
+        lastSync:existing?.lastSync||null,
+      };
+    });
+
+    // Parse tickets
+    S.tickets=tickets.map(r=>({
+      id:r.id, labId:String(r.labId), labName:r.labNombre,
+      code:String(r.codigo), type:r.tipo, desc:r.descripcion,
+      action:r.accion, status:r.estado,
+      createdBy:r.creadoPor, createdAt:r.creadoEn,
+      resolvedBy:r.resueltoPor, resolvedAt:r.resueltoEn,
+      diffs:safeJson(r.diffs,[]), timeline:safeJson(r.timeline,[]),
+    }));
+    S.tktCounter=S.tickets.length>0?Math.max(...S.tickets.map(t=>parseInt(t.id.replace('TKT-',''))||0))+1:1;
+
+    // Parse inventory (already filtered by period)
+    S.confirmed=inventory.map(r=>({
+      labId:String(r.labId), labName:r.labNombre,
+      code:String(r.codigo), desc:r.descripcion,
+      brand:r.marca, area:r.area, status:r.estado,
+      timestamp:r.timestamp, periodo:r.periodo||'',
+    }));
+
+    // Update lab counters
+    S.labs.forEach(lab=>{
+      lab.openTickets=S.tickets.filter(t=>t.labId===lab.id&&t.status==='open').length;
+      lab.pendingTickets=S.tickets.filter(t=>t.labId===lab.id&&t.status==='pending').length;
+      lab.resolvedTickets=S.tickets.filter(t=>t.labId===lab.id&&t.status==='resolved').length;
+      lab.verified=S.confirmed.filter(c=>c.labId===lab.id).length;
+    });
+    hideApiBanner();
+    toast('✅ Datos cargados','📊');
+    return true;
+  }catch(e){
+    console.error('loadFromSheets error:',e);
+    toast('Error al cargar: '+e.message,'❌');
+    return false;
+  }finally{setLoading(false);}
+}
+
+function safeJson(str,fallback){
+  if(typeof str!=='string'||!str) return fallback;
+  try{return JSON.parse(str);}catch(_){return fallback;}
+}
+
+async function persistLab(lab){
+  const data={
+    id:lab.id, nombre:lab.name, area:lab.area||'—',
+    facultad:lab.facultad||'Agronomía', dpto:lab.dpto||'—',
+    responsable:lab.responsible, icono:lab.icon,
+    color:lab.color, totalEquipos:lab.totalEquip,
+    verificados:lab.verified, periodo:lab.period||currentPeriod(),
+    areas:JSON.stringify(lab.areas||[]),
+    fechaCreacion:new Date().toLocaleDateString('es-PE'),
+  };
+  await fbSet('labs', lab.id, data);
+  // Sync to Sheets in background
+  syncToSheets('saveLab', data);
+}
+
+async function persistItem(item){
+  item.periodo=item.periodo||currentPeriod();
+  const data={
+    labId:item.labId, labNombre:item.labName,
+    codigo:item.code, descripcion:item.desc,
+    marca:item.brand||'—', area:item.area||'—',
+    estado:item.status, timestamp:item.timestamp,
+    periodo:item.periodo,
+  };
+  const docId=`${item.labId}__${item.code}__${item.periodo}`.replace(/[^a-zA-Z0-9_-]/g,'_');
+  await fbSet('inventory', docId, data);
+  // Sync to Sheets in background
+  syncToSheets('saveItem', {...data, id:item.labId+'-'+item.code});
+}
+
+async function persistTicket(tkt){
+  const data={
+    labId:tkt.labId, labNombre:tkt.labName,
+    codigo:tkt.code, tipo:tkt.type, descripcion:tkt.desc,
+    accion:tkt.action||'', estado:tkt.status,
+    creadoPor:tkt.createdBy, creadoEn:tkt.createdAt,
+    resueltoPor:tkt.resolvedBy||'', resueltoEn:tkt.resolvedAt||'',
+    diffs:JSON.stringify(tkt.diffs||[]),
+    timeline:JSON.stringify(tkt.timeline||[]),
+  };
+  await fbSet('tickets', tkt.id, data);
+  syncToSheets('saveTicket', {...data, id:tkt.id});
+}
+
+async function updateTicketInSheets(tkt){
+  const data={
+    estado:tkt.status,
+    resueltoPor:tkt.resolvedBy||'',
+    resueltoEn:tkt.resolvedAt||'',
+    diffs:JSON.stringify(tkt.diffs||[]),
+    timeline:JSON.stringify(tkt.timeline||[]),
+  };
+  await fbSet('tickets', tkt.id, {...data, labId:tkt.labId, labNombre:tkt.labName,
+    codigo:tkt.code, tipo:tkt.type, descripcion:tkt.desc,
+    accion:tkt.action||'', creadoPor:tkt.createdBy, creadoEn:tkt.createdAt});
+  syncToSheets('updateTicket', {...data, id:tkt.id});
+}
+
+async function persistHistory(lab){
+  const period=currentPeriod();
+  const data={
+    labId:lab.id, periodo:period,
+    incidencias:S.tickets.filter(t=>t.labId===lab.id).length,
+    resueltos:S.tickets.filter(t=>t.labId===lab.id&&t.status==='resolved').length,
+    verificados:S.confirmed.filter(c=>c.labId===lab.id).length,
+    totalEquipos:lab.totalEquip,
+    fechaRegistro:new Date().toLocaleDateString('es-PE'),
+  };
+  await fbSet('historial', `${lab.id}__${period}`.replace(/[^a-zA-Z0-9_-]/g,'_'), data);
+  syncToSheets('saveHistory', data);
+}
+
+async function persistLabDB(lab){
+  if(!lab||!lab.db||lab.db.length===0) return;
+  toast('Guardando '+lab.db.length+' equipos…','⏳');
+  // Delete existing patrimonio for this lab first
+  await fbDeleteByField('patrimonio', 'labId', lab.id);
+  // Write all items in parallel batches of 20
+  const BATCH=20;
+  for(let i=0;i<lab.db.length;i+=BATCH){
+    const batch=lab.db.slice(i,i+BATCH);
+    await Promise.all(batch.map((it,j)=>{
+      const docId=`${lab.id}__${it.code}`.replace(/[^a-zA-Z0-9_-]/g,'_');
+      const data={labId:lab.id, labNombre:lab.name, codigo:it.code,
+        descripcion:it.desc, area:it.area||'—', estado:it.status,
+        obs:it.obs||'', fechaMant:it.fechaMant||''};
+      return fbSet('patrimonio', docId, data);
+    }));
+    // Sync batch to Sheets
+    syncToSheets('saveLabDB',{labId:lab.id,labName:lab.name,items:batch,replace:i===0});
+  }
+  await persistLab(lab);
+  toast('✅ '+lab.db.length+' equipos guardados','📊');
+}
+
+async function loadLabDB(labId){
+  const docs=await fbQuery('patrimonio',[fbFilter('labId','===',labId)]);
+  if(docs.length>0){
+    const lab=S.labs.find(l=>l.id===labId);
+    if(lab){
+      lab.db=docs.map(d=>({
+        code:String(d.codigo||''), desc:String(d.descripcion||''),
+        brand:'—', area:String(d.area||'—'),
+        status:String(d.estado||'ÓPTIMO'),
+        obs:String(d.obs||''), fechaMant:String(d.fechaMant||''),
+      }));
+      lab.totalEquip=lab.db.length;
+    }
+    return true;
+  }
+  return false;
+}
+
+function calcDefaultPeriod(){
+  const now=new Date();
+  const y=now.getFullYear();
+  const sem=now.getMonth()<6?'I':'II';
+  return 'Sem '+sem+' - '+y;
+}
+function currentPeriod(){
+  try{ if(typeof S!=='undefined'&&S&&S.period) return S.period; }catch(_){}
+  return calcDefaultPeriod();
+}
+
+function showApiBanner(){} // Firebase — no banner needed
+function hideApiBanner(){}
+function setLoading(on){const el=document.getElementById('loadingOverlay');if(el)el.style.display=on?'flex':'none';}
+
+function saveApiUrl(){} // Firebase — no longer needed
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+async function init(){
+  // Set current period label
+  syncPeriodSelect();
+  updateSelects();
+  const loaded=await loadFromSheets();
+  // Firebase — no API URL needed
+  renderLabs();
+  updateNBadge();
+}
+
+window.addEventListener('load',init);
+</script>
+</body>
+</html>
